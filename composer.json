@@ -35,6 +35,7 @@
         "colinmollenhour/php-redis-session-abstract": "~1.4.0",
         "composer/composer": "^1.9",
         "elasticsearch/elasticsearch": "~7.7.0",
+        "google/cloud-spanner": "^1.32",
         "guzzlehttp/guzzle": "^6.3.3",
         "laminas/laminas-captcha": "^2.7.1",
         "laminas/laminas-code": "~3.4.1",
