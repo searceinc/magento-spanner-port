@@ -10,6 +10,8 @@ use Magento\Framework\App\ResourceConnection\SourceProviderInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
+use Google\Cloud\Spanner\SpannerClient;
+putenv('SPANNER_EMULATOR_HOST=localhost:9010');
 
 /**
  * Entity/Attribute/Model - collection abstract
@@ -1198,8 +1200,14 @@ abstract class AbstractCollection extends AbstractDb implements SourceProviderIn
                     } else {
                         $select = $selects;
                     }
-                    $values = $this->getSapnnerConnection();
-                    $resl = $database->execute($select);
+
+                    $select = str_replace("`t_d`.`value`","cast(`t_d`.`value` as string)",$select);
+                    $select = str_replace("`t_s`.`value`","cast(`t_s`.`value` as string)",$select);
+                    $select = str_replace("IF(t_s.value_id IS NULL, t_d.value, t_s.value)","cast(IF(t_s.value_id IS NULL, t_d.value, t_s.value) as string)",$select);
+
+
+                    $values = $this->getSapnnerConnection()->fetchAll($select);
+
                 } catch (\Exception $e) {
                     $this->printLogQuery(true, true, $select);
                     throw $e;

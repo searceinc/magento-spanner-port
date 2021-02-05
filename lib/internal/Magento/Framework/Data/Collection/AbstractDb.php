@@ -12,6 +12,7 @@ use Magento\Framework\DB\Select;
 use Magento\Framework\Api\ExtensionAttribute\JoinDataInterface;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Psr\Log\LoggerInterface as Logger;
+use Magento\Framework\DB\Adapter\Spanner\Spanner as Spanner;
 
 /**
  * Base items collection class
@@ -116,17 +117,14 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         EntityFactoryInterface $entityFactory,
         Logger $logger,
         FetchStrategyInterface $fetchStrategy,
-        \Magento\Framework\DB\Adapter\AdapterInterface $connection = null,
-        \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface $spanner_connection = null
+        \Magento\Framework\DB\Adapter\AdapterInterface $connection = null
     ) {
         parent::__construct($entityFactory);
         $this->_fetchStrategy = $fetchStrategy;
         if ($connection !== null) {
             $this->setConnection($connection);
         }
-        if ($spanner_connection !== null) {
-            $this->setSpannerConnection($spanner_connection);
-        }
+        $this->setSpannerConnection();
         $this->_logger = $logger;
     }
 
@@ -201,12 +199,9 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         return $this;
     }
 
-    public function setSpannerConnection(\Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface $conn)
+    public function setSpannerConnection()
     {
-        $spanner = new SpannerClient([ 'projectId' => 'mag-project' ]);
-        $instance = $spanner->instance('test-instance');
-        $database = $instance->database('magentocs');
-        $this->_spanner_conn = $database;
+        $this->_spanner_conn = new Spanner();
         return $this;
     }
     
@@ -228,11 +223,7 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
      */
     public function getConnection()
     {
-        if($isSpanner) {
-            return $this->_spanner_conn;
-        } else {
-            return $this->_conn;
-        }
+        return $this->_conn;
     }
 
     /**
