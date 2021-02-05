@@ -1198,7 +1198,8 @@ abstract class AbstractCollection extends AbstractDb implements SourceProviderIn
                     } else {
                         $select = $selects;
                     }
-                    $values = $this->getConnection()->fetchAll($select);
+                    $values = $this->getSapnnerConnection();
+                    $resl = $database->execute($select);
                 } catch (\Exception $e) {
                     $this->printLogQuery(true, true, $select);
                     throw $e;

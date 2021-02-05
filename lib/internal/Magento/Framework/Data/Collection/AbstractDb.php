@@ -31,6 +31,13 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     protected $_conn;
 
     /**
+     * Cloud sapnner connection
+     *
+     * @var \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface
+     */
+    protected $_spanner_conn;
+
+    /**
      * Select object
      *
      * @var \Magento\Framework\DB\Select
@@ -109,12 +116,16 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         EntityFactoryInterface $entityFactory,
         Logger $logger,
         FetchStrategyInterface $fetchStrategy,
-        \Magento\Framework\DB\Adapter\AdapterInterface $connection = null
+        \Magento\Framework\DB\Adapter\AdapterInterface $connection = null,
+        \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface $spanner_connection = null
     ) {
         parent::__construct($entityFactory);
         $this->_fetchStrategy = $fetchStrategy;
         if ($connection !== null) {
             $this->setConnection($connection);
+        }
+        if ($spanner_connection !== null) {
+            $this->setSpannerConnection($spanner_connection);
         }
         $this->_logger = $logger;
     }
@@ -190,6 +201,16 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         return $this;
     }
 
+    public function setSpannerConnection(\Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface $conn)
+    {
+        $spanner = new SpannerClient([ 'projectId' => 'mag-project' ]);
+        $instance = $spanner->instance('test-instance');
+        $database = $instance->database('magentocs');
+        $this->_spanner_conn = $database;
+        return $this;
+    }
+    
+
     /**
      * Get \Magento\Framework\DB\Select instance
      *
@@ -207,7 +228,21 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
      */
     public function getConnection()
     {
-        return $this->_conn;
+        if($isSpanner) {
+            return $this->_spanner_conn;
+        } else {
+            return $this->_conn;
+        }
+    }
+
+    /**
+     * Retrieve connection object
+     *
+     * @return AdapterInterface
+     */
+    public function getSapnnerConnection()
+    {
+        return $this->_spanner_conn;
     }
 
     /**
