@@ -5,10 +5,8 @@ namespace Magento\Framework\DB\Adapter;
 use Magento\Framework\DB\Ddl\Table;
 
 /**
- * Magento Database Adapter Interface
+ * Cloud Spanner Database Adapter Interface
  *
- * @api
- * @since 100.0.2
  */
 interface SpannerInterface
 {
@@ -92,7 +90,7 @@ interface SpannerInterface
      * @param  mixed $sql The SQL statement with placeholders.
      *                      May be a string or \Magento\Framework\DB\Select.
      * @param  mixed $bind An array of data or data itself to bind to the placeholders.
-     * @return \Zend_Db_Statement_Interface
+     * @return array
      */
     public function query($sql, $bind = []);
 
@@ -140,7 +138,7 @@ interface SpannerInterface
      *
      * @param int|string|\DateTimeInterface $date
      * @param boolean $includeTime
-     * @return \Zend_Db_Expr
+     * @return string
      */
     public function formatDate($date, $includeTime = true);
 
@@ -150,7 +148,6 @@ interface SpannerInterface
      * @param string $tableName
      * @param string|null $schemaName
      * @return string|bool
-     * @since 100.1.0
      */
     public function getAutoIncrementField($tableName, $schemaName = null);
 }

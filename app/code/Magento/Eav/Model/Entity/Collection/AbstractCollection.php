@@ -11,7 +11,6 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
 use Google\Cloud\Spanner\SpannerClient;
-putenv('SPANNER_EMULATOR_HOST=localhost:9010');
 
 /**
  * Entity/Attribute/Model - collection abstract
