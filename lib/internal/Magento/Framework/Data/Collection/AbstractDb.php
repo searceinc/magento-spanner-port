@@ -199,6 +199,13 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         return $this;
     }
 
+    /**
+     * Set cloud spanner database connection adapter
+     *
+     * @param \Magento\Framework\DB\Adapter\SpannerInterface $conn
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function setSpannerConnection()
     {
         $this->_spanner_conn = new Spanner();
@@ -229,7 +236,7 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     /**
      * Retrieve connection object
      *
-     * @return AdapterInterface
+     * @return SpannerAdapterInterface
      */
     public function getSapnnerConnection()
     {

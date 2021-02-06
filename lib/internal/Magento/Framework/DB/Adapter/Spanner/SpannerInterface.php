@@ -1,6 +1,6 @@
 <?php
 
-namespace Magento\Framework\DB\Adapter;
+namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Magento\Framework\DB\Ddl\Table;
 
@@ -10,50 +10,73 @@ use Magento\Framework\DB\Ddl\Table;
  */
 interface SpannerInterface
 {
-    /**
-     * Creates and returns a new \Magento\Framework\DB\Select object for this adapter.
-     *
-     * @return \Magento\Framework\DB\Select
-     */
-    public function select();
 
     /**
-     * Inserts a table row with specified data.
+     * Prepares and executes an SQL statement with bound data.
      *
-     * @param mixed $table The table to insert data into.
-     * @param array $data Column-value pairs or array of column-value pairs.
-     * @param array $fields update fields pairs or values
-     * @return int The number of affected rows.
+     * @param  mixed $sql The SQL statement.
+     * @return array
      */
-    public function insertOnDuplicate($table, array $data, array $fields = []);
+    public function query($sql);
 
     /**
-     * Inserts a table multiply rows with specified data.
+     * Fetches all SQL result rows as a sequential array.
      *
-     * @param mixed $table The table to insert data into.
-     * @param array $data Column-value pairs or array of Column-value pairs.
-     * @return int The number of affected rows.
+     * Uses the current fetchMode for the adapter.
+     *
+     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
+     * @return array
      */
-    public function insertMultiple($table, array $data);
+    public function fetchAll($sql);
+
+    /**
+     * Fetches the first row of the SQL result.
+     *
+     * Uses the current fetchMode for the adapter.
+     *
+     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
+     * @return mixed Array, object.
+     */
+    public function fetchRow($sql);
+
+    /**
+     * Fetches all SQL result rows as an associative array.
+     *
+     * The first column is the key, the entire row array is the
+     * value.  You should construct the query to be sure that
+     * the first column contains unique values, or else
+     * rows with duplicate values in the first column will
+     * overwrite previous data.
+     *
+     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
+     * @return array
+     */
+    public function fetchOne($sql);
+
+    /**
+     * Format Date to internal database date format
+     *
+     * @param int|string|\DateTimeInterface $date
+     * @return string
+     */
+    public function formatDate($date);
+
+    /**
+     * Returns auto increment field if exists
+     *
+     * @return string|bool
+     */
+    public function getAutoIncrement();
 
     /**
      * Insert array into a table based on columns definition
      *
-     * $data can be represented as:
-     * - arrays of values ordered according to columns in $columns array
-     *      array(
-     *          array('value1', 'value2'),
-     *          array('value3', 'value4'),
-     *      )
-     * - array of values, if $columns contains only one column
-     *      array('value1', 'value2')
      *
-     * @param   string $table
-     * @param   string[] $columns the data array column map
+     * @param   array $table
      * @param   array $data
      * @return  int
      */
-    public function insertArray($table, array $columns, array $data);
+    public function insertArray(array $table, array $data);
 
     /**
      * Inserts a table row with specified data.
@@ -70,10 +93,13 @@ interface SpannerInterface
      * Special for Zero values to identity column
      *
      * @param string $table
-     * @param array $bind
+     * @param string $bind
+     * @param string $bind
+     * @param string $whereCol
+     * @param string $where
      * @return int The number of affected rows.
      */
-    public function update($table, array $bind, $where = '');
+    public function update($table, $bindCol, $bind, $whereCol, $where);
 
     /**
      * Deletes table rows based on a WHERE clause.
@@ -82,72 +108,14 @@ interface SpannerInterface
      * @param  mixed $where DELETE WHERE clause(s).
      * @return int          The number of affected rows.
      */
-    public function delete($table, $where = '');
+    public function delete($table, $where);
 
     /**
-     * Prepares and executes an SQL statement with bound data.
-     *
-     * @param  mixed $sql The SQL statement with placeholders.
-     *                      May be a string or \Magento\Framework\DB\Select.
-     * @param  mixed $bind An array of data or data itself to bind to the placeholders.
-     * @return array
+     * Deletes table rows based on a WHERE clause.
+     * @param  string $sql
+     * @param  string $col
+     * @param  string $type
      */
-    public function query($sql, $bind = []);
+    public function addCast($sql, $col, $type);
 
-    /**
-     * Fetches all SQL result rows as a sequential array.
-     *
-     * Uses the current fetchMode for the adapter.
-     *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
-     * @param mixed $bind Data to bind into SELECT placeholders.
-     * @param mixed $fetchMode Override current fetch mode.
-     * @return array
-     */
-    public function fetchAll($sql, $bind = [], $fetchMode = null);
-
-    /**
-     * Fetches the first row of the SQL result.
-     *
-     * Uses the current fetchMode for the adapter.
-     *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
-     * @param mixed $bind Data to bind into SELECT placeholders.
-     * @param mixed $fetchMode Override current fetch mode.
-     * @return mixed Array, object, or scalar depending on fetch mode.
-     */
-    public function fetchRow($sql, $bind = [], $fetchMode = null);
-
-    /**
-     * Fetches all SQL result rows as an associative array.
-     *
-     * The first column is the key, the entire row array is the
-     * value.  You should construct the query to be sure that
-     * the first column contains unique values, or else
-     * rows with duplicate values in the first column will
-     * overwrite previous data.
-     *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
-     * @param mixed $bind Data to bind into SELECT placeholders.
-     * @return array
-     */
-    public function fetchOne($sql, $bind = []);
-
-    /**
-     * Format Date to internal database date format
-     *
-     * @param int|string|\DateTimeInterface $date
-     * @param boolean $includeTime
-     * @return string
-     */
-    public function formatDate($date, $includeTime = true);
-
-    /**
-     * Returns auto increment field if exists
-     *
-     * @param string $tableName
-     * @param string|null $schemaName
-     * @return string|bool
-     */
-    public function getAutoIncrementField($tableName, $schemaName = null);
 }

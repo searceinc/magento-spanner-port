@@ -1,5 +1,4 @@
 <?php
-putenv('SPANNER_EMULATOR_HOST=localhost:9010');
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
@@ -10,14 +9,36 @@ use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
  *
  */
 
-class Spanner
+class Spanner implements SpannerInterface
 {
-
+    /**
+     * Google cloud project id
+     * @var string
+     */
     protected $PROJECT_ID = 'mag-project';
+
+    /**
+     * Google cloud instance name
+     * @var string
+     */
     protected $INSTANCE  = 'mag-instance';
+
+    /**
+     * Cloud spanner databse name
+     * @var string
+     */
     protected $DATABASE  = 'magentocs';
+
+    /**
+     * Is cloud spanner emulator
+     * @var bool
+     */
     protected $IS_EMULATOR = true;
 
+    /**
+     * Connection Object
+     * Magento\Framework\DB\Adapter\Spanner\SpannerInterface
+     */
     protected $_connection = null;
 
     /**
@@ -36,6 +57,9 @@ class Spanner
      */
     protected function _connect()
     {
+        if($this->IS_EMULATOR) {
+            putenv('SPANNER_EMULATOR_HOST=localhost:9010');
+        }
         if ($this->_connection) {
             return;
         }
@@ -127,13 +151,11 @@ class Spanner
     public function fetchAll($sql)
     {
         try {
-            
             $result = $this->query($sql);
             return $this->fetch($result);
         } catch (exception $e) {
             throw $e;
         }
-
     }
 
     /**
@@ -141,10 +163,9 @@ class Spanner
      *
      *
      * @param string|\Magento\Framework\DB\Select $sql The SQL statement with placeholders.
-     * @param mixed $bind An array of data or data itself to bind to the placeholders.
      * @throws Exception
      */
-    protected function query($sql, $bind = [])
+    public function query($sql)
     {
         try {
             $results = $this->_connection->execute($sql);
@@ -158,12 +179,11 @@ class Spanner
      * Allows multiple queries
      *
      * @param string|\Magento\Framework\DB\Select $sql The SQL statement with placeholders.
-     * @param mixed $bind An array of data or data itself to bind to the placeholders.
-     * @throws LocalizedException In case multiple queries are attempted at once, to protect from SQL injection
+     * @throws Exception
      */
-    public function multiQuery($sql, $bind = [])
+    public function multiQuery($sql)
     {
-        return $this->query($sql, $bind);
+        return $this->query($sql);
     }
 
     /**
@@ -186,6 +206,131 @@ class Spanner
         return strtr($string, $translate);
     }
 
+    /**
+     * Single multiple rows in the table
+     * @param array $table
+     * @param array $data
+     * @throws Exception
+     */
+    public function insertArray(array $table, array $data) 
+    {
+        try {
+            $session = $this->_connection->transaction(['singleUse' => true]);
+            for ($i = 0; $i <= count($table); $i++) {
+                $session->insertBatch($table[i], $data[i]);
+            }
+            $results = $session->commit();
+            return $results;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Single single row in the table
+     * @param string $table
+     * @param array $data
+     * @throws Exception
+     */
+    public function insert($table, array $data) 
+    {
+        try {
+            $results = $this->_connection->transaction(['singleUse' => true])
+            ->insertBatch($table, $data)
+            ->commit();
+            return $results;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Single col update in the table
+     * @param string $table
+     * @param array $data
+     * @throws Exception
+     */
+    public function update($table, $bindCol, $bind, $whereCol, $where) 
+    {
+        try {
+            $results = $this->_connection->transaction(['singleUse' => true])
+            ->updateBatch($table, [
+                [$whereCol => $where, $bindCol => $bind]
+            ])
+            ->commit();
+            return $results;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete from table
+     * @param string $table
+     * @param string $where
+     * @throws Exception
+     */
+    public function delete($table, $where) 
+    {
+        try {
+            $sql =  "DELETE FROM ".$table." WHERE ".$where;
+            $results = $this->_connection->executePartitionedUpdate($sql);
+            return $results;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Format Date to T and Z iso format
+     * @param string $date
+     * @throws Exception
+     */
+    public function formatDate($date)
+    {
+        return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
+    }
+
+    /**
+     * Generate UUID
+     *
+     */
+    public function getAutoIncrement() 
+    {
+        if (function_exists('com_create_guid') === true)
+        {
+            return trim(com_create_guid(), '{}');
+        }
+
+        return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));    
+    }
+
+    /**
+     * Returns the single row
+     * @param string $sql
+     * @throws Exception
+     */
+    public function fetchRow($sql) 
+    {
+        try {
+            $result = $this->query($sql);
+            return $this->fetchOne($result);
+        } catch (exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Cast the column with type
+     * @param string $sql
+     * @param string $col
+     * @param string $type
+     */
+    public function addCast($sql, $col, $type) 
+    {
+       $cast = "cast(".$col." as ".$type.")";
+       return str_replace($col, $col, $cast);
+    }
     
     /**
      * Closes the connection.
