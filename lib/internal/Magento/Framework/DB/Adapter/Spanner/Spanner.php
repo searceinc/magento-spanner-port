@@ -329,7 +329,7 @@ class Spanner implements SpannerInterface
     public function addCast($sql, $col, $type) 
     {
        $cast = "cast(".$col." as ".$type.")";
-       return str_replace($col, $col, $cast);
+       return str_replace($col, $cast, $sql);
     }
     
     /**

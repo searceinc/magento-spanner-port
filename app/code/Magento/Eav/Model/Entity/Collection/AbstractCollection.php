@@ -1205,9 +1205,9 @@ abstract class AbstractCollection extends AbstractDb implements SourceProviderIn
                     /**
                      * Cloud spanner follows strict type so cast the columns in common type
                      */
-                    $select = $con->cast($select, "`t_d`.`value`", 'string');
-                    $select = $con->cast($select, "`t_s`.`value`", 'string');
-                    $select = $con->cast($select, "IF(t_s.value_id IS NULL, t_d.value, t_s.value)", 'string');
+                    $select = $con->addCast($select, "`t_d`.`value`", 'string');
+                    $select = $con->addCast($select, "`t_s`.`value`", 'string');
+                    $select = $con->addCast($select, "IF(t_s.value_id IS NULL, t_d.value, t_s.value)", 'string');
                     
                     $values = $con->fetchAll($select);
 
