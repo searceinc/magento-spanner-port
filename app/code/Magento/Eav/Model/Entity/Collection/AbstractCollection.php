@@ -1200,7 +1200,7 @@ abstract class AbstractCollection extends AbstractDb implements SourceProviderIn
                         $select = $selects;
                     }
 
-                    $con = $this->getSapnnerConnection();
+                    $con = $this->getSpannerConnection();
 
                     /**
                      * Cloud spanner follows strict type so cast the columns in common type

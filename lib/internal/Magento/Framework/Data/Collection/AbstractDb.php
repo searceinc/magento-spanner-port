@@ -238,7 +238,7 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
      *
      * @return SpannerAdapterInterface
      */
-    public function getSapnnerConnection()
+    public function getSpannerConnection()
     {
         return $this->_spanner_conn;
     }
