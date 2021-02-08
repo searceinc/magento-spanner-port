@@ -346,7 +346,7 @@ abstract class AbstractDb extends AbstractResource
      *
      * @return SpannerAdapterInterface
      */
-    public function getSapnnerConnection()
+    public function getSpannerConnection()
     {
         if(!$this->_spanner_conn) {
             $this->_spanner_conn = new Spanner();
@@ -436,10 +436,10 @@ abstract class AbstractDb extends AbstractResource
                 $this->_checkUnique($object);
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
-                    $this->updateObjectinSpanner($object);
+                   $this->updateObjectinSpanner($object);
                     $this->updateObject($object);
                 } else {
-                    $this->saveNewObjectinSpanner($object);
+                  $this->saveNewObjectinSpanner($object);
                     $this->saveNewObject($object);
                 }
                 $this->unserializeFields($object);
@@ -500,7 +500,7 @@ abstract class AbstractDb extends AbstractResource
      */
     public function deleteinSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
-        $con = $this->getSapnnerConnection();
+        $con = $this->getSpannerConnection();
         try {
             $condition = $this->getIdFieldName() . '='. $object->getId();
             $con->delete($this->getMainTable(), $condition);
@@ -863,7 +863,7 @@ abstract class AbstractDb extends AbstractResource
     protected function saveNewObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $bind = $this->_prepareDataForSave($object);
-        $con = $this->getSapnnerConnection();
+        $con = $this->getSpannerConnection();
         if ($this->_isPkAutoIncrement) {
             $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
         }
@@ -897,7 +897,7 @@ abstract class AbstractDb extends AbstractResource
     protected function updateObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $data = $this->prepareDataForSpannerUpdate($object);
-        $con = $this->getSapnnerConnection();
+        $con = $this->getSpannerConnection();
         if (!empty($data)) {
             $con->update($this->getMainTable(), $data);
         }
