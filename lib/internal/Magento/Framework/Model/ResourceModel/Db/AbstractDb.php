@@ -503,7 +503,7 @@ abstract class AbstractDb extends AbstractResource
         $con = $this->getSapnnerConnection();
         try {
             $condition = $this->getIdFieldName() . '='. $object->getId();
-            $con->dalete($this->getMainTable(), $condition);
+            $con->delete($this->getMainTable(), $condition);
         } catch (\Exception $e) {
             throw $e;
         }
