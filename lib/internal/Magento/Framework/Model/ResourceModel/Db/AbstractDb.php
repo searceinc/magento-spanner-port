@@ -369,10 +369,11 @@ abstract class AbstractDb extends AbstractResource
             $field = $this->getIdFieldName();
         }
 
-        $connection = $this->getConnection();
-        if ($connection && $value !== null) {
-            $select = $this->_getLoadSelect($field, $value, $object);
-            $data = $connection->fetchRow($select);
+        $con = $this->getSpannerConnection();
+        if ($con && $value !== null) {
+            
+            $select = $this->_getLoadSelectForSpanner($field, $value, $object);
+            $data = $con->fetchRow($select);
             if ($data) {
                 $object->setData($data);
             }
@@ -385,6 +386,26 @@ abstract class AbstractDb extends AbstractResource
         $object->setHasDataChanges(false);
 
         return $this;
+    }
+
+    /**
+     * Retrieve select object for load object data
+     *
+     * @param string $field
+     * @param mixed $value
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @return \Magento\Framework\DB\Select
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function _getLoadSelectForSpanner($field, $value, $object)
+    {
+        $select = "select * from ".$this->getMainTable()." where ".$field;
+        if(is_numeric($value)) {
+            $select = $select."=".$value."";
+        } else {
+            $select = $select."='".$value."'";
+        }
+        return $select;
     }
 
     /**
@@ -435,13 +456,19 @@ abstract class AbstractDb extends AbstractResource
                 $this->_beforeSave($object);
                 $this->_checkUnique($object);
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
+               try {
                 if ($this->isObjectNotNew($object)) {
-                   $this->updateObjectinSpanner($object);
-                    $this->updateObject($object);
-                } else {
-                  $this->saveNewObjectinSpanner($object);
-                    $this->saveNewObject($object);
-                }
+                    $this->updateObjectinSpanner($object);
+                    //$this->updateObject($object);
+                  } else {
+                    $this->saveNewObjectinSpanner($object);
+                    //$this->saveNewObject($object);
+                  }
+               } catch (\Exception $e) {
+                    throw $e;
+               }
+               
+   
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
             }
@@ -479,6 +506,7 @@ abstract class AbstractDb extends AbstractResource
                 $this->getConnection()->quoteInto($this->getIdFieldName() . '=?', $object->getId()),
                 $object->getData()
             );
+            $this->deleteinSpanner($object);
             $this->_afterDelete($object);
             $object->isDeleted(true);
             $object->afterDelete();
@@ -502,7 +530,11 @@ abstract class AbstractDb extends AbstractResource
     {
         $con = $this->getSpannerConnection();
         try {
-            $condition = $this->getIdFieldName() . '='. $object->getId();
+            if(is_numeric($object->getId())) {
+                $condition = $this->getIdFieldName() . '='. $object->getId();
+            } else {
+                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+            }
             $con->delete($this->getMainTable(), $condition);
         } catch (\Exception $e) {
             throw $e;
@@ -896,8 +928,19 @@ abstract class AbstractDb extends AbstractResource
      */
     protected function updateObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
-        $data = $this->prepareDataForSpannerUpdate($object);
         $con = $this->getSpannerConnection();
+        $data = $this->prepareDataForSpannerUpdate($object);
+        if ($this->_isPkAutoIncrement) {
+            $data[$this->getIdFieldName()] = $object->getId();
+        }
+        if(isset($data['added_at'])) {
+            $data['added_at'] =  $con->formatDate();
+        }
+
+        if(isset($data['last_visit_at'])) {
+            $data['last_visit_at']  =  $con->formatDate();
+        }
+
         if (!empty($data)) {
             $con->update($this->getMainTable(), $data);
         }

@@ -125,7 +125,11 @@ class Spanner implements SpannerInterface
         foreach ($data as $d) {
             $items[] = $d;
         }
-        return $items[0];
+        if(count($items) > 0 ) {
+            return $items[0];
+        } else {
+            return [];
+        }
     }
 
     /**

@@ -67,8 +67,7 @@ class Remove extends \Magento\Wishlist\Controller\AbstractIndex implements Actio
         if (!$this->formKeyValidator->validate($this->getRequest())) {
             return $resultRedirect->setPath('*/*/');
         }
-
-        $id = (int)$this->getRequest()->getParam('item');
+        $id = $this->getRequest()->getParam('item');
         /** @var Item $item */
         $item = $this->_objectManager->create(Item::class)->load($id);
         if (!$item->getId()) {
@@ -79,7 +78,7 @@ class Remove extends \Magento\Wishlist\Controller\AbstractIndex implements Actio
             throw new NotFoundException(__('Page not found.'));
         }
         try {
-            $item->deleteinSpanner();
+            $item->delete();
             $wishlist->save();
             $productName = $this->attributeValueProvider
                 ->getRawAttributeValue($item->getProductId(), 'name');
