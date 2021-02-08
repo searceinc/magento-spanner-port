@@ -214,7 +214,7 @@
         </index>
     </table>
     <table name="quote_item" resource="checkout" engine="innodb" comment="Sales Flat Quote Item">
-        <column xsi:type="int" name="item_id" unsigned="true" nullable="false" identity="true"
+        <column xsi:type="varchar" name="item_id" unsigned="true" nullable="false" identity="true"
                 comment="Item ID"/>
         <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" identity="false"
                 default="0" comment="Quote ID"/>
@@ -412,9 +412,9 @@
         </index>
     </table>
     <table name="quote_item_option" resource="checkout" engine="innodb" comment="Sales Flat Quote Item Option">
-        <column xsi:type="int" name="option_id" unsigned="true" nullable="false" identity="true"
+        <column xsi:type="varchar" name="option_id" unsigned="true" nullable="false" identity="true"
                 comment="Option ID"/>
-        <column xsi:type="int" name="item_id" unsigned="true" nullable="false" identity="false"
+        <column xsi:type="varchar" name="item_id" unsigned="true" nullable="false" identity="false"
                 comment="Item ID"/>
         <column xsi:type="int" name="product_id" unsigned="true" nullable="false" identity="false"
                 comment="Product ID"/>
@@ -494,7 +494,7 @@
         </index>
     </table>
     <table name="quote_id_mask" resource="checkout" engine="innodb" comment="Quote ID and masked ID mapping">
-        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true"
+        <column xsi:type="varchar" name="entity_id" unsigned="true" nullable="false" identity="true"
                 comment="Entity ID"/>
         <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" identity="false"
                 comment="Quote ID"/>
