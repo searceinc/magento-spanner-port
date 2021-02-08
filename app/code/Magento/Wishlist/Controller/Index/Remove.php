@@ -79,7 +79,7 @@ class Remove extends \Magento\Wishlist\Controller\AbstractIndex implements Actio
             throw new NotFoundException(__('Page not found.'));
         }
         try {
-            $item->delete();
+            $item->deleteinSpanner();
             $wishlist->save();
             $productName = $this->attributeValueProvider
                 ->getRawAttributeValue($item->getProductId(), 'name');

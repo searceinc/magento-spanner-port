@@ -3,6 +3,7 @@ namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
+use Magento\Framework\Stdlib\DateTime;
 
 /**
  * Cloud Spanner database adapter
@@ -236,7 +237,7 @@ class Spanner implements SpannerInterface
     {
         try {
             $results = $this->_connection->transaction(['singleUse' => true])
-            ->insertBatch($table, $data)
+            ->insertBatch($table, [$data])
             ->commit();
             return $results;
         } catch (\Exception $e) {
@@ -250,13 +251,11 @@ class Spanner implements SpannerInterface
      * @param array $data
      * @throws Exception
      */
-    public function update($table, $bindCol, $bind, $whereCol, $where) 
+    public function update($table, $bind) 
     {
         try {
             $results = $this->_connection->transaction(['singleUse' => true])
-            ->updateBatch($table, [
-                [$whereCol => $where, $bindCol => $bind]
-            ])
+            ->updateBatch($table, [ $bind ])
             ->commit();
             return $results;
         } catch (\Exception $e) {
@@ -286,8 +285,9 @@ class Spanner implements SpannerInterface
      * @param string $date
      * @throws Exception
      */
-    public function formatDate($date)
+    public function formatDate()
     {
+        $date = (new \DateTime())->format(DateTime::DATETIME_PHP_FORMAT);
         return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
     }
 

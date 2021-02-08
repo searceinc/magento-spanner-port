@@ -11,6 +11,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Phrase;
+use Magento\Framework\DB\Adapter\Spanner\Spanner as Spanner;
 
 /**
  * Abstract resource model
@@ -44,6 +45,13 @@ abstract class AbstractDb extends AbstractResource
      * @var array
      */
     protected $_connections = [];
+
+    /**
+     * Cloud sapnner connection
+     *
+     * @var \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface
+     */
+    protected $_spanner_conn;
 
     /**
      * Resource model name that contains entities (names of tables)
@@ -334,6 +342,19 @@ abstract class AbstractDb extends AbstractResource
     }
 
     /**
+     * Retrieve connection object
+     *
+     * @return SpannerAdapterInterface
+     */
+    public function getSapnnerConnection()
+    {
+        if(!$this->_spanner_conn) {
+            $this->_spanner_conn = new Spanner();
+        }
+        return $this->_spanner_conn;
+    }
+
+    /**
      * Load an object
      *
      * @param \Magento\Framework\Model\AbstractModel $object
@@ -352,7 +373,6 @@ abstract class AbstractDb extends AbstractResource
         if ($connection && $value !== null) {
             $select = $this->_getLoadSelect($field, $value, $object);
             $data = $connection->fetchRow($select);
-
             if ($data) {
                 $object->setData($data);
             }
@@ -416,8 +436,10 @@ abstract class AbstractDb extends AbstractResource
                 $this->_checkUnique($object);
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
+                    $this->updateObjectinSpanner($object);
                     $this->updateObject($object);
                 } else {
+                    $this->saveNewObjectinSpanner($object);
                     $this->saveNewObject($object);
                 }
                 $this->unserializeFields($object);
@@ -464,6 +486,25 @@ abstract class AbstractDb extends AbstractResource
             $object->afterDeleteCommit();
         } catch (\Exception $e) {
             $this->transactionManager->rollBack();
+            throw $e;
+        }
+        return $this;
+    }
+
+    /**
+     * Delete from spanner
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @return $this
+     * @throws \Exception
+     */
+    public function deleteinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $con = $this->getSapnnerConnection();
+        try {
+            $condition = $this->getIdFieldName() . '='. $object->getId();
+            $con->dalete($this->getMainTable(), $condition);
+        } catch (\Exception $e) {
             throw $e;
         }
         return $this;
@@ -754,6 +795,29 @@ abstract class AbstractDb extends AbstractResource
         return $data;
     }
 
+        /**
+     * Get the array of data fields that was changed or added
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @return array
+     * @throws LocalizedException
+     */
+    protected function prepareDataForSpannerUpdate($object)
+    {
+        $data = $object->getData();
+        foreach ($object->getStoredData() as $key => $value) {
+            if (array_key_exists($key, $data) && $data[$key] === $value) {
+                unset($data[$key]);
+            }
+        }
+        $dataObject = clone $object;
+        $dataObject->setData($data);
+        $data = $this->_prepareDataForTable($dataObject, $this->getMainTable());
+        unset($dataObject);
+
+        return $data;
+    }
+
     /**
      * Check if object is new
      *
@@ -786,6 +850,56 @@ abstract class AbstractDb extends AbstractResource
 
         if ($this->_useIsObjectNew) {
             $object->isObjectNew(false);
+        }
+    }
+
+    /**
+     * Save New Object in cloud spanner
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @throws LocalizedException
+     * @return void
+     */
+    protected function saveNewObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $bind = $this->_prepareDataForSave($object);
+        $con = $this->getSapnnerConnection();
+        if ($this->_isPkAutoIncrement) {
+            $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
+        }
+
+        if(isset($bind['added_at'])) {
+            $bind['added_at'] =  $con->formatDate();
+        }
+
+        if(isset($bind['last_visit_at'])) {
+            $bind['last_visit_at']  =  $con->formatDate();
+        }
+
+        $con->insert($this->getMainTable(), $bind);
+
+        if ($this->_isPkAutoIncrement) {
+            $object->setId($bind[$this->getIdFieldName()]);
+        }
+
+        if ($this->_useIsObjectNew) {
+            $object->isObjectNew(false);
+        }
+    }
+
+    /**
+     * Update existing object
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @throws LocalizedException
+     * @return void
+     */
+    protected function updateObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $data = $this->prepareDataForSpannerUpdate($object);
+        $con = $this->getSapnnerConnection();
+        if (!empty($data)) {
+            $con->update($this->getMainTable(), $data);
         }
     }
 

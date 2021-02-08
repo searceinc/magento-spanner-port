@@ -56,10 +56,9 @@ interface SpannerInterface
     /**
      * Format Date to internal database date format
      *
-     * @param int|string|\DateTimeInterface $date
      * @return string
      */
-    public function formatDate($date);
+    public function formatDate();
 
     /**
      * Returns auto increment field if exists
@@ -99,7 +98,7 @@ interface SpannerInterface
      * @param string $where
      * @return int The number of affected rows.
      */
-    public function update($table, $bindCol, $bind, $whereCol, $where);
+    public function update($table, $bind);
 
     /**
      * Deletes table rows based on a WHERE clause.
