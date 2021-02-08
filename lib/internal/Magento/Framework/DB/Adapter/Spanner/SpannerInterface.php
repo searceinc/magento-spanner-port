@@ -117,4 +117,9 @@ interface SpannerInterface
      */
     public function addCast($sql, $col, $type);
 
+    /**
+     * Formates the sql for cloud spanner
+     * @param  string $sql
+     */
+    public function sanitize_sql($sql);
 }

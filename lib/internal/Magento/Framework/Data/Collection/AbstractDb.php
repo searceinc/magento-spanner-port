@@ -610,7 +610,12 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         $this->_beforeLoad();
         $this->_renderFilters()->_renderOrders()->_renderLimit();
         $this->printLogQuery($printQuery, $logQuery);
-        $data = $this->getData();
+
+        $sql = $this->getSelect()->__toString();
+        $con = $this->getSpannerConnection();
+        $sql = $con->sanitize_sql($sql);
+        $data = $con->fetchAll($sql);
+
         $this->resetData();
         if (is_array($data)) {
             foreach ($data as $row) {

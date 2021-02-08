@@ -346,4 +346,24 @@ class Spanner implements SpannerInterface
             $this->_connection->close();
         }
     }
+
+    /**
+     * Formates the sql for cloud spanner
+     * @param string $sql
+     */
+    public function sanitize_sql($sql)
+    {
+        if (preg_match_all("/('[^']*')/", $sql, $m)) {
+            $matches = array_shift($m);
+            for($i = 0; $i < count($matches); $i++) {
+                $curr =  $matches[$i];
+                $curr = filter_var($curr, FILTER_SANITIZE_NUMBER_INT);
+                if (is_numeric($curr))
+                {
+                    $sql = str_replace($matches[$i],(int) $curr, $sql);
+                }
+            }
+        }
+        return $sql;
+    }
 }
