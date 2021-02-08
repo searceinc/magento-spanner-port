@@ -32,9 +32,9 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     protected $_conn;
 
     /**
-     * Cloud sapnner connection
+     * Cloud Spanner connection
      *
-     * @var \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface
+     * @var \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
      */
     protected $_spanner_conn;
 
