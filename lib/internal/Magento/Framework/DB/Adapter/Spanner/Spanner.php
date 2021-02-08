@@ -366,4 +366,15 @@ class Spanner implements SpannerInterface
         }
         return $sql;
     }
+
+    /**
+     * Convert to T and Z iso format
+     * @param string $date
+     * @throws Exception
+     */
+    public function convertDate($date)
+    {
+        $date = (new \DateTime($date))->format(DateTime::DATETIME_PHP_FORMAT);
+        return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
+    }
 }

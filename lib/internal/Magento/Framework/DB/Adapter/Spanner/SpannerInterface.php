@@ -122,4 +122,10 @@ interface SpannerInterface
      * @param  string $sql
      */
     public function sanitize_sql($sql);
+
+    /**
+     * Convert to T and Z iso format
+     * @param string $date
+     */
+    public function convertDate($date);
 }
