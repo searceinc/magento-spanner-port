@@ -529,12 +529,14 @@ abstract class AbstractDb extends AbstractResource
     {
         $con = $this->getSpannerConnection();
         try {
-            if(is_numeric($object->getId())) {
-                $condition = $this->getIdFieldName() . '='. $object->getId();
-            } else {
-                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+            if($object->getId()) {
+                if(is_numeric($object->getId())) {
+                    $condition = $this->getIdFieldName() . '='. $object->getId();
+                } else {
+                    $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+                }
+                $con->delete($this->getMainTable(), $condition);
             }
-            $con->delete($this->getMainTable(), $condition);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -903,9 +905,10 @@ abstract class AbstractDb extends AbstractResource
             $bind['added_at'] =  $con->formatDate();
         }
 
-       if($this->getMainTable() == 'quote_item') {
+       if($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
             $bind['created_at'] =  $con->formatDate();
             $bind['updated_at'] =  $con->formatDate();
+            $bind['free_shipping'] =  1;
        }
 
         if(isset($bind['last_visit_at'])) {
