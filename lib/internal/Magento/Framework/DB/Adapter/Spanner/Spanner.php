@@ -24,7 +24,7 @@ class Spanner implements SpannerInterface
     protected $INSTANCE  = 'mag-instance';
 
     /**
-     * Cloud spanner databse name
+     * Cloud spanner database name
      * @var string
      */
     protected $DATABASE  = 'magentocs';
@@ -207,7 +207,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Single multiple rows in the table
+     * Insert multiple rows in multiple tables
      * @param array $table
      * @param array $data
      * @throws Exception
@@ -217,7 +217,7 @@ class Spanner implements SpannerInterface
         try {
             $session = $this->_connection->transaction(['singleUse' => true]);
             for ($i = 0; $i <= count($table); $i++) {
-                $session->insertBatch($table[i], $data[i]);
+                $session->insertBatch($table[$i], $data[$i]);
             }
             $results = $session->commit();
             return $results;
@@ -227,7 +227,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Single single row in the table
+     * Insert multiple rows in single table
      * @param string $table
      * @param array $data
      * @throws Exception
@@ -274,7 +274,7 @@ class Spanner implements SpannerInterface
     {
         try {
             $sql =  "DELETE FROM ".$table." WHERE ".$where;
-            $results = $this->_connection->executePartitionedUpdate($sql);
+            $results = $this->_connection->updateBatch($sql);
             return $results;
         } catch (\Exception $e) {
             throw $e;
