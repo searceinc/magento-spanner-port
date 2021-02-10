@@ -274,7 +274,7 @@ class Spanner implements SpannerInterface
     {
         try {
             $sql =  "DELETE FROM ".$table." WHERE ".$where;
-            $results = $this->_connection->updateBatch($sql);
+            $results = $this->_connection->executeUpdate($sql);
             return $results;
         } catch (\Exception $e) {
             throw $e;
