@@ -2,6 +2,7 @@
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\Transaction;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
 use Magento\Framework\Stdlib\DateTime;
 
@@ -71,7 +72,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Run RAW Query
+     * Run raw Query
      *
      * @param string $sql
      * @throws \exception
@@ -88,7 +89,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Run RAW query and Fetch First row
+     * Run row query and Fetch data
      *
      * @param string $sql
      * @param string|int $field
@@ -114,37 +115,25 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Returns First row
+     * Returns first row
      *
      * @param array $data
      * @return object
      */
     public function fetchOne($data)
     {
-        $items = [];
-        foreach ($data as $d) {
-            $items[] = $d;
-        }
-        if(count($items) > 0 ) {
-            return $items[0];
-        } else {
-            return [];
-        }
+        return $data->rows()->current();
     }
 
     /**
-     * Returns All row
+     * Returns all rows
      *
      * @param array $data
      * @return array
      */
     public function fetch($data)
     {
-        $items = [];
-        foreach ($data as $d) {
-            $items[] = $d;
-        }
-        return $items;
+        return iterator_to_array($data->rows());
     }
 
     /**
@@ -277,7 +266,10 @@ class Spanner implements SpannerInterface
     {
         try {
             $sql =  "DELETE FROM ".$table." WHERE ".$where;
-            $results = $this->_connection->executeUpdate($sql);
+            $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
+                $rowCount = $t->executeUpdate($sql);
+                $t->commit();
+            });
             return $results;
         } catch (\Exception $e) {
             throw $e;
