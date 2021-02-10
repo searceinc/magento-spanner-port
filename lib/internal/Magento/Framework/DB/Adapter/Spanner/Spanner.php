@@ -2,6 +2,7 @@
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\Transaction;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
 
 /**
@@ -70,7 +71,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Run RAW Query
+     * Run raw Query
      *
      * @param string $sql
      * @throws \exception
@@ -87,7 +88,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Run RAW query and Fetch First row
+     * Run row query and Fetch data
      *
      * @param string $sql
      * @param string|int $field
@@ -113,33 +114,25 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Returns First row
+     * Returns first row
      *
      * @param array $data
      * @return object
      */
     public function fetchOne($data)
     {
-        $items = [];
-        foreach ($data as $d) {
-            $items[] = $d;
-        }
-        return $items[0];
+        return $data->rows()->current();
     }
 
     /**
-     * Returns All row
+     * Returns all rows
      *
      * @param array $data
      * @return array
      */
     public function fetch($data)
     {
-        $items = [];
-        foreach ($data as $d) {
-            $items[] = $d;
-        }
-        return $items;
+        return iterator_to_array($data->rows());
     }
 
     /**
