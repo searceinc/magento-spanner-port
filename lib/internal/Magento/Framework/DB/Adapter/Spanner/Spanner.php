@@ -2,6 +2,8 @@
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\Session\CacheSessionPool;
+use Google\Auth\Cache\SysVCacheItemPool;
 use Google\Cloud\Spanner\Transaction;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
 use Magento\Framework\Stdlib\DateTime;
@@ -66,9 +68,19 @@ class Spanner implements SpannerInterface
             return;
         }
         $spanner = new SpannerClient([ 'projectId' => $this->PROJECT_ID ]);
-        $instance = $spanner->instance($this->INSTANCE);
-        $database = $instance->database($this->DATABASE);
-        $this->_connection = $database;
+        $sessionPool = $this->createSessionPool();
+        $this->_connection = $spanner->connect($this->INSTANCE, $this->DATABASE, ['sessionPool' => $sessionPool]);
+    }
+
+    /**
+     * Creates the session pool for spanner connection
+     * @return SessionPoolInterface
+     * @throws Exception
+     */
+    protected function createSessionPool() 
+    {
+        $cache = new SysVCacheItemPool();
+        return new CacheSessionPool($cache, ['maxSessions' => 100]);
     }
 
     /**
