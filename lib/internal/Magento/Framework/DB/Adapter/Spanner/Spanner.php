@@ -39,6 +39,13 @@ class Spanner implements SpannerInterface
      */
     protected $IS_EMULATOR = true;
 
+
+    /**
+     * Max session 
+     * @var int
+     */
+    protected $maxsessions = 100;
+
     /**
      * Connection Object
      * Magento\Framework\DB\Adapter\Spanner\SpannerInterface
@@ -80,7 +87,7 @@ class Spanner implements SpannerInterface
     protected function createSessionPool() 
     {
         $cache = new SysVCacheItemPool();
-        return new CacheSessionPool($cache, ['maxSessions' => 100]);
+        return new CacheSessionPool($cache, ['maxSessions' => $this->maxsessions]);
     }
 
     /**
