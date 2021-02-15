@@ -49,7 +49,7 @@ interface SpannerInterface
      * overwrite previous data.
      *
      * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
-     * @return array
+     * @return object
      */
     public function fetchOne($sql);
 
@@ -63,7 +63,7 @@ interface SpannerInterface
     /**
      * Returns auto increment field if exists
      *
-     * @return string|bool
+     * @return string
      */
     public function getAutoIncrement();
 
@@ -73,7 +73,7 @@ interface SpannerInterface
      *
      * @param   array $table
      * @param   array $data
-     * @return  int
+     * @return  Commit timestamp
      */
     public function insertArray(array $table, array $data);
 
@@ -82,7 +82,7 @@ interface SpannerInterface
      *
      * @param mixed $table The table to insert data into.
      * @param array $bind Column-value pairs.
-     * @return int The number of affected rows.
+     * @return Commit timestamp
      */
     public function insert($table, array $bind);
 
@@ -96,7 +96,7 @@ interface SpannerInterface
      * @param string $bind
      * @param string $whereCol
      * @param string $where
-     * @return int The number of affected rows.
+     * @return Commit timestamp
      */
     public function update($table, $bind);
 
@@ -105,7 +105,7 @@ interface SpannerInterface
      *
      * @param  mixed $table The table to update.
      * @param  mixed $where DELETE WHERE clause(s).
-     * @return int          The number of affected rows.
+     * @return Commit timestamp
      */
     public function delete($table, $where);
 
@@ -114,6 +114,7 @@ interface SpannerInterface
      * @param  string $sql
      * @param  string $col
      * @param  string $type
+     * @return string
      */
     public function addCast($sql, $col, $type);
 
