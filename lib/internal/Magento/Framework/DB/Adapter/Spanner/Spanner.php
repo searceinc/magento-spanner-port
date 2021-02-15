@@ -16,31 +16,31 @@ class Spanner implements SpannerInterface
      * Google cloud project id
      * @var string
      */
-    protected $PROJECT_ID = 'mag-project';
+    private $project_id = 'mag-project';
 
     /**
      * Google cloud instance name
      * @var string
      */
-    protected $INSTANCE  = 'mag-instance';
+    private $instance  = 'mag-instance';
 
     /**
      * Cloud spanner database name
      * @var string
      */
-    protected $DATABASE  = 'magentocs';
+    private $database  = 'magentocs';
 
     /**
      * Is cloud spanner emulator
      * @var bool
      */
-    protected $IS_EMULATOR = true;
+    private $is_emulator = true;
 
     /**
      * Connection Object
      * Magento\Framework\DB\Adapter\Spanner\SpannerInterface
      */
-    protected $_connection = null;
+    private $_connection = null;
 
     /**
      * Constructor
@@ -58,32 +58,26 @@ class Spanner implements SpannerInterface
      */
     protected function _connect()
     {
-        if($this->IS_EMULATOR) {
+        if ($this->is_emulator) {
             putenv('SPANNER_EMULATOR_HOST=localhost:9010');
         }
         if ($this->_connection) {
             return;
         }
-        $spanner = new SpannerClient([ 'projectId' => $this->PROJECT_ID ]);
-        $instance = $spanner->instance($this->INSTANCE);
-        $database = $instance->database($this->DATABASE);
-        $this->_connection = $database;
+        $spanner = new SpannerClient([ 'projectId' => $this->project_id ]);
+        $instance = $spanner->instance($this->instance);
+        $this->_connection = $instance->database($this->database);
     }
 
     /**
      * Run raw Query
      *
      * @param string $sql
-     * @throws \exception
+     * @return mixed|null
      */
     public function rawQuery($sql)
     {
-        try {
-            $result = $this->query($sql);
-        } catch (exception $e) {
-            throw $e;
-        }
-
+        $result = $this->query($sql);
         return $result;
     }
 
@@ -143,36 +137,27 @@ class Spanner implements SpannerInterface
      */
     public function fetchAll($sql)
     {
-        try {
-            $result = $this->query($sql);
-            return $this->fetch($result);
-        } catch (exception $e) {
-            throw $e;
-        }
+        $result = $this->query($sql);
+        return $this->fetch($result);
     }
 
     /**
      * query
      *
-     *
-     * @param string|\Magento\Framework\DB\Select $sql The SQL statement with placeholders.
-     * @throws Exception
+     * @param string| SQL statement.
+     * @return mixed|null
      */
     public function query($sql)
     {
-        try {
-            $results = $this->_connection->execute($sql);
-            return $results;
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $results = $this->_connection->execute($sql);
+        return $results;
     }
 
     /**
      * Allows multiple queries
      *
-     * @param string|\Magento\Framework\DB\Select $sql The SQL statement with placeholders.
-     * @throws Exception
+     * @param string| SQL statement.
+     * @return mixed|null
      */
     public function multiQuery($sql)
     {
@@ -203,84 +188,69 @@ class Spanner implements SpannerInterface
      * Insert multiple rows in multiple tables
      * @param array $table
      * @param array $data
-     * @throws Exception
+     * @return Commit timestamp
      */
     public function insertArray(array $table, array $data) 
     {
-        try {
-            $session = $this->_connection->transaction(['singleUse' => true]);
-            for ($i = 0; $i <= count($table); $i++) {
-                $session->insertBatch($table[$i], $data[$i]);
-            }
-            $results = $session->commit();
-            return $results;
-        } catch (\Exception $e) {
-            throw $e;
+        $session = $this->_connection->transaction(['singleUse' => true]);
+        for ($i = 0; $i <= count($table); $i++) {
+            $session->insertBatch($table[$i], $data[$i]);
         }
+        $results = $session->commit();
+        return $results;
     }
 
     /**
      * Insert multiple rows in single table
      * @param string $table
      * @param array $data
-     * @throws Exception
+     * @return Commit timestamp
      */
     public function insert($table, array $data) 
     {
-        try {
-            $results = $this->_connection->transaction(['singleUse' => true])
-            ->insertBatch($table, $data)
-            ->commit();
-            return $results;
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $results = $this->_connection->transaction(['singleUse' => true])
+                    ->insertBatch($table, $data)
+                    ->commit();
+        return $results;
     }
 
     /**
      * Single col update in the table
      * @param string $table
      * @param array $data
-     * @throws Exception
+     * @return Commit timestamp
      */
     public function update($table, $bindCol, $bind, $whereCol, $where) 
     {
-        try {
-            $results = $this->_connection->transaction(['singleUse' => true])
-            ->updateBatch($table, [
-                [$whereCol => $where, $bindCol => $bind]
-            ])
-            ->commit();
-            return $results;
-        } catch (\Exception $e) {
-            throw $e;
-        }
+
+        $results = $this->_connection->transaction(['singleUse' => true])
+                    ->updateBatch($table, [
+                        [$whereCol => $where, $bindCol => $bind]
+                    ])
+                    ->commit();
+        return $results;
     }
 
     /**
      * Delete from table
      * @param string $table
      * @param string $where
-     * @throws Exception
+     * @return Commit timestamp
      */
     public function delete($table, $where) 
     {
-        try {
-            $sql =  "DELETE FROM ".$table." WHERE ".$where;
-            $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
-                $rowCount = $t->executeUpdate($sql);
-                $t->commit();
-            });
-            return $results;
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $sql = "DELETE FROM ".$table." WHERE ".$where;
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
+            $rowCount = $t->executeUpdate($sql);
+            $t->commit();
+        });
+        return $results;
     }
 
     /**
      * Format Date to T and Z iso format
      * @param string $date
-     * @throws Exception
+     * @return string
      */
     public function formatDate($date)
     {
@@ -289,7 +259,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Generate UUID
-     *
+     * @return string
      */
     public function getAutoIncrement() 
     {
@@ -304,16 +274,12 @@ class Spanner implements SpannerInterface
     /**
      * Returns the single row
      * @param string $sql
-     * @throws Exception
+     * @return object
      */
     public function fetchRow($sql) 
     {
-        try {
-            $result = $this->query($sql);
-            return $this->fetchOne($result);
-        } catch (exception $e) {
-            throw $e;
-        }
+        $result = $this->query($sql);
+        return $this->fetchOne($result);
     }
 
     /**
@@ -321,6 +287,7 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @param string $col
      * @param string $type
+     * @return string| SQL statement
      */
     public function addCast($sql, $col, $type) 
     {
@@ -330,7 +297,7 @@ class Spanner implements SpannerInterface
     
     /**
      * Closes the connection.
-     *
+     * @return void
      */
     public function closeConnection()
     {
