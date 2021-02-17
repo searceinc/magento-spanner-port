@@ -107,5 +107,5 @@ interface SpannerInterface
      * @param  string $sql
      * @return string| SQL statement
      */
-    public function sanitizeSql($sql);
+    public function sanitizeSql(string $sql);
 }
