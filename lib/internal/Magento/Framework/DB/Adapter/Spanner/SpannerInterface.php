@@ -40,10 +40,10 @@ interface SpannerInterface
     /**
      * Returns first row
      *
-     * @param array $data
+     * @param object $data
      * @return object
      */
-    public function fetchOne(array $data);
+    public function fetchOne(object $data);
 
     /**
      * Format Date to internal database date format
@@ -61,11 +61,11 @@ interface SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
-     * @param string $table
+     * @param array $table
      * @param array $data
      * @return Commit timestamp
      */
-    public function insertArray(string $table, array $data);
+    public function insertArray(array $table, array $data);
 
     /**
      * Insert multiple rows in single table
@@ -79,10 +79,10 @@ interface SpannerInterface
      * Single col update in the table
      *
      * @param string $table
-     * @param string $bind
+     * @param array $bind
      * @return Commit timestamp
      */
-    public function update(string $table, string $bind);
+    public function update(string $table, array $bind);
 
     /**
      * Deletes table rows based on a WHERE clause.
