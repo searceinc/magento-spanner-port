@@ -372,7 +372,7 @@ abstract class AbstractDb extends AbstractResource
         $con = $this->getSpannerConnection();
         if ($con && $value !== null) {
             
-            $select = $this->_getLoadSelectForSpanner($field, $value, $object);
+            $select = $this->getLoadSelectForSpanner($field, $value);
             $data = $con->fetchRow($select);
             if ($data) {
                 $object->setData($data);
@@ -393,11 +393,10 @@ abstract class AbstractDb extends AbstractResource
      *
      * @param string $field
      * @param mixed $value
-     * @param \Magento\Framework\Model\AbstractModel $object
-     * @return \Magento\Framework\DB\Select
+     * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function _getLoadSelectForSpanner($field, $value, $object)
+    protected function getLoadSelectForSpanner(string $field, mixed $value)
     {
         $select = "select * from ".$this->getMainTable()." where ".$field;
         if(is_numeric($value)) {
