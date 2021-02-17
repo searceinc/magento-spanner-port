@@ -392,11 +392,11 @@ abstract class AbstractDb extends AbstractResource
      * Retrieve select object for load object data
      *
      * @param string $field
-     * @param mixed $value
+     * @param string $value
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function getLoadSelectForSpanner(string $field, mixed $value)
+    protected function getLoadSelectForSpanner(string $field, string $value)
     {
         $select = "select * from ".$this->getMainTable()." where ".$field;
         if(is_numeric($value)) {
