@@ -26,13 +26,13 @@ class Spanner implements SpannerInterface
     private $instance  = 'mag-instance';
 
     /**
-     * Cloud spanner database name
+     * Cloud Spanner database name
      * @var string
      */
     private $database  = 'magentocs';
 
     /**
-     * Is cloud spanner emulator
+     * Is Cloud Spanner emulator
      * @var bool
      */
     private $is_emulator = true;
@@ -53,7 +53,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Creates a Spanner object and connects to the database.
+     * Creates a Cloud Spanner object and connects to the database.
      *
      * @return void
      */
@@ -111,10 +111,10 @@ class Spanner implements SpannerInterface
     /**
      * Returns first row
      *
-     * @param array $data
+     * @param object $data
      * @return object
      */
-    public function fetchOne(array $data)
+    public function fetchOne(object $data)
     {
         return $data->rows()->current();
     }
@@ -122,10 +122,10 @@ class Spanner implements SpannerInterface
     /**
      * Returns all rows
      *
-     * @param array $data
+     * @param object $data
      * @return array
      */
-    public function fetch(array $data)
+    public function fetch(object $data)
     {
         return iterator_to_array($data->rows());
     }
@@ -187,17 +187,19 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
-     * @param string $table
+     * @param array $table
      * @param array $data
      * @return Commit timestamp
      */
-    public function insertArray(string $table, array $data) 
+    public function insertArray(array $table, array $data) 
     {
-        $session = $this->_connection->transaction(['singleUse' => true]);
-        for ($i = 0; $i <= count($table); $i++) {
-            $session->insertBatch($table[$i], $data[$i]);
-        }
-        $results = $session->commit();
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
+            for ($i = 0; $i <= count($table); $i++) {
+                $t->insertBatch($table[$i], $data[$i]);
+            }
+            $t->commit();
+        });
+        
         return $results;
     }
 
@@ -209,23 +211,25 @@ class Spanner implements SpannerInterface
      */
     public function insert(string $table, array $data) 
     {
-        $results = $this->_connection->transaction(['singleUse' => true])
-                    ->insertBatch($table, [$data])
-                    ->commit();
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
+            $t->insertBatch($table, [ $data ]);
+            $t->commit();
+        });
         return $results;
     }
 
     /**
      * Single col update in the table
      * @param string $table
-     * @param string $bind
+     * @param array $bind
      * @return Commit timestamp
      */
-    public function update(string $table, string $bind) 
+    public function update(string $table, array $bind) 
     {
-        $results = $this->_connection->transaction(['singleUse' => true])
-                    ->updateBatch($table, [ $bind ])
-                    ->commit();
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $bind) {
+            $t->updateBatch($table, [ $bind ]);
+            $t->commit();
+        });
         return $results;
     }
 
