@@ -104,14 +104,20 @@ interface SpannerInterface
 
     /**
      * Formats the sql for Cloud Spanner
-     * @param  string $sql
-     * @return string| SQL statement
+     * Example 
+     * Input SQL : <select statement> WHERE (`product_id` = '340') ORDER BY position  ASC
+     * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position  ASC
+     * In the above example integer `340` is sanitized by removing single quotes.
+     * Sanitization is required since Cloud Spanner is strict type
+     * @param string $sql
+     * @return string $sql
      */
-    public function sanitizeSql($sql);
+    public function sanitizeSql(string $sql);
 
     /**
      * Convert to T and Z iso format
      * @param string $date
+     * @return string
      */
-    public function convertDate($date);
+    public function convertDate(string $date);
 }

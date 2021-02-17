@@ -394,7 +394,6 @@ abstract class AbstractDb extends AbstractResource
      * @param string $field
      * @param string $value
      * @return string
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function getLoadSelectForSpanner(string $field, string $value)
     {
@@ -455,7 +454,6 @@ abstract class AbstractDb extends AbstractResource
                 $this->_beforeSave($object);
                 $this->_checkUnique($object);
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
-               try {
                 if ($this->isObjectNotNew($object)) {
                     $this->updateObjectInSpanner($object);
                     //$this->updateObject($object);
@@ -463,9 +461,6 @@ abstract class AbstractDb extends AbstractResource
                     $this->saveNewObjectInSpanner($object);
                     //$this->saveNewObject($object);
                   }
-               } catch (\Exception $e) {
-                    throw $e;
-               }
                
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
@@ -521,25 +516,19 @@ abstract class AbstractDb extends AbstractResource
      * Delete from Cloud Spanner
      *
      * @param \Magento\Framework\Model\AbstractModel $object
-     * @return $this
-     * @throws \Exception
+     * @return void
      */
     public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
-        try {
-            if($object->getId()) {
-                if(is_numeric($object->getId())) {
-                    $condition = $this->getIdFieldName() . '='. $object->getId();
-                } else {
-                    $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
-                }
-                $con->delete($this->getMainTable(), $condition);
+        if($object->getId()) {
+            if(is_numeric($object->getId())) {
+                $condition = $this->getIdFieldName() . '='. $object->getId();
+            } else {
+                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
             }
-        } catch (\Exception $e) {
-            throw $e;
+            $con->delete($this->getMainTable(), $condition);
         }
-        return $this;
     }
 
     /**
@@ -834,7 +823,7 @@ abstract class AbstractDb extends AbstractResource
      * @return array
      * @throws LocalizedException
      */
-    protected function prepareDataForSpannerUpdate($object)
+    protected function prepareDataForSpannerUpdate(\Magento\Framework\Model\AbstractModel $object)
     {
         $data = $object->getData();
         foreach ($object->getStoredData() as $key => $value) {
