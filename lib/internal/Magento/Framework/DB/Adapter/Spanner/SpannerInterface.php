@@ -61,11 +61,11 @@ interface SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
-     * @param string $table
+     * @param array $table
      * @param array $data
      * @return Commit timestamp
      */
-    public function insertArray(string $table, array $data);
+    public function insertArray(array $table, array $data);
 
     /**
      * Insert multiple rows in single table

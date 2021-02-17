@@ -200,7 +200,7 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     }
 
     /**
-     * Set cloud spanner database connection adapter
+     * Set Cloud Spanner database connection adapter
      *
      * @param \Magento\Framework\DB\Adapter\SpannerInterface $conn
      * @throws \Magento\Framework\Exception\LocalizedException
