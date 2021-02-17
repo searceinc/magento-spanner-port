@@ -191,7 +191,7 @@ class Spanner implements SpannerInterface
      * @param string $string
      * @return string
      */
-    protected function unQuote($string)
+    protected function unQuote(string $string)
     {
         $translate = [
             "\\000" => "\000",
