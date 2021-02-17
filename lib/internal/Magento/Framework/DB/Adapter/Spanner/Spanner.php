@@ -171,7 +171,7 @@ class Spanner implements SpannerInterface
      * @param string $string
      * @return string
      */
-    protected function _unQuote($string)
+    protected function unQuote($string)
     {
         $translate = [
             "\\000" => "\000",
@@ -262,8 +262,7 @@ class Spanner implements SpannerInterface
      */
     public function getAutoIncrement() 
     {
-        if (function_exists('com_create_guid') === true)
-        {
+        if (function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
         }
 
@@ -308,17 +307,17 @@ class Spanner implements SpannerInterface
     /**
      * Formates the sql for cloud spanner
      * @param string $sql
+     * @return string| SQL statement
      */
-    public function sanitize_sql($sql)
+    public function sanitizeSql($sql)
     {
         if (preg_match_all("/('[^']*')/", $sql, $m)) {
             $matches = array_shift($m);
             for($i = 0; $i < count($matches); $i++) {
                 $curr =  $matches[$i];
                 $curr = filter_var($curr, FILTER_SANITIZE_NUMBER_INT);
-                if (is_numeric($curr))
-                {
-                    $sql = str_replace($matches[$i],(int) $curr, $sql);
+                if (is_numeric($curr)) {
+                    $sql = str_replace($matches[$i], $curr, $sql);
                 }
             }
         }

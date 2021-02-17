@@ -121,6 +121,7 @@ interface SpannerInterface
     /**
      * Formates the sql for cloud spanner
      * @param  string $sql
+     * @return string| SQL statement
      */
-    public function sanitize_sql($sql);
+    public function sanitizeSql($sql);
 }
