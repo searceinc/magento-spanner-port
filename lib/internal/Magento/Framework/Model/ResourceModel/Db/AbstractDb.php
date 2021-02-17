@@ -47,9 +47,9 @@ abstract class AbstractDb extends AbstractResource
     protected $_connections = [];
 
     /**
-     * Cloud sapnner connection
+     * Cloud Spanner connection
      *
-     * @var \Magento\Framework\DB\Adapter\Sapnner\SpannerAdapterInterface
+     * @var \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
      */
     protected $_spanner_conn;
 
@@ -458,10 +458,10 @@ abstract class AbstractDb extends AbstractResource
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                try {
                 if ($this->isObjectNotNew($object)) {
-                    $this->updateObjectinSpanner($object);
+                    $this->updateObjectInSpanner($object);
                     //$this->updateObject($object);
                   } else {
-                    $this->saveNewObjectinSpanner($object);
+                    $this->saveNewObjectInSpanner($object);
                     //$this->saveNewObject($object);
                   }
                } catch (\Exception $e) {
@@ -506,7 +506,7 @@ abstract class AbstractDb extends AbstractResource
                 $this->getConnection()->quoteInto($this->getIdFieldName() . '=?', $object->getId()),
                 $object->getData()
             );
-            $this->deleteinSpanner($object);
+            $this->deleteInSpanner($object);
             $this->_afterDelete($object);
             $object->isDeleted(true);
             $object->afterDelete();
@@ -520,13 +520,13 @@ abstract class AbstractDb extends AbstractResource
     }
 
     /**
-     * Delete from spanner
+     * Delete from Cloud Spanner
      *
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return $this
      * @throws \Exception
      */
-    public function deleteinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
         try {
@@ -886,13 +886,13 @@ abstract class AbstractDb extends AbstractResource
     }
 
     /**
-     * Save New Object in cloud spanner
+     * Save New Object in Cloud Spanner
      *
      * @param \Magento\Framework\Model\AbstractModel $object
      * @throws LocalizedException
      * @return void
      */
-    protected function saveNewObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    protected function saveNewObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $bind = $this->_prepareDataForSave($object);
         $con = $this->getSpannerConnection();
@@ -926,7 +926,7 @@ abstract class AbstractDb extends AbstractResource
      * @throws LocalizedException
      * @return void
      */
-    protected function updateObjectinSpanner(\Magento\Framework\Model\AbstractModel $object)
+    protected function updateObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
         $data = $this->prepareDataForSpannerUpdate($object);
