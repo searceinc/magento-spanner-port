@@ -12,7 +12,7 @@ use Magento\Framework\DB\Select;
 use Magento\Framework\Api\ExtensionAttribute\JoinDataInterface;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Psr\Log\LoggerInterface as Logger;
-use Magento\Framework\DB\Adapter\Spanner\Spanner as Spanner;
+use Magento\Framework\DB\Adapter\Spanner\Spanner;
 
 /**
  * Base items collection class
