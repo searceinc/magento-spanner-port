@@ -340,7 +340,7 @@ class Spanner implements SpannerInterface
      * @param string $date
      * @return string
      */
-    public function convertDate($date)
+    public function convertDate(string $date)
     {
         if ($date) {
             return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
