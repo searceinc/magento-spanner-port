@@ -103,7 +103,7 @@ interface SpannerInterface
     public function addCast(string $sql, string $col, string $type);
 
     /**
-     * Formates the sql for cloud spanner
+     * Formats the sql for Cloud Spanner
      * @param  string $sql
      * @return string| SQL statement
      */
