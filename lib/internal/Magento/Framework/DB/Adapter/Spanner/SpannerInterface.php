@@ -2,8 +2,6 @@
 
 namespace Magento\Framework\DB\Adapter\Spanner;
 
-use Magento\Framework\DB\Ddl\Table;
-
 /**
  * Cloud Spanner Database Adapter Interface
  *
@@ -14,52 +12,45 @@ interface SpannerInterface
     /**
      * Prepares and executes an SQL statement with bound data.
      *
-     * @param  mixed $sql The SQL statement.
-     * @return array
+     * @param  string $sql
+     * @return mixed|null
      */
-    public function query($sql);
+    public function query(string $sql);
 
     /**
      * Fetches all SQL result rows as a sequential array.
      *
      * Uses the current fetchMode for the adapter.
      *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
+     * @param string $sql
      * @return array
      */
-    public function fetchAll($sql);
+    public function fetchAll(string $sql);
 
     /**
      * Fetches the first row of the SQL result.
      *
      * Uses the current fetchMode for the adapter.
      *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
-     * @return mixed Array, object.
-     */
-    public function fetchRow($sql);
-
-    /**
-     * Fetches all SQL result rows as an associative array.
-     *
-     * The first column is the key, the entire row array is the
-     * value.  You should construct the query to be sure that
-     * the first column contains unique values, or else
-     * rows with duplicate values in the first column will
-     * overwrite previous data.
-     *
-     * @param string|\Magento\Framework\DB\Select $sql An SQL SELECT statement.
+     * @param string $sql
      * @return object
      */
-    public function fetchOne($sql);
+    public function fetchRow(string $sql);
 
     /**
-     * Format Date to internal database date format
+     * Returns first row
      *
-     * @param int|string|\DateTimeInterface $date
+     * @param array $data
+     * @return object
+     */
+    public function fetchOne(array $data);
+
+    /**
+     * Format Date to T and Z iso format
+     * @param string $date
      * @return string
      */
-    public function formatDate($date);
+    public function formatDate(string $date);
 
     /**
      * Returns auto increment field if exists
@@ -69,54 +60,50 @@ interface SpannerInterface
     public function getAutoIncrement();
 
     /**
-     * Insert array into a table based on columns definition
-     *
-     *
-     * @param   array $table
-     * @param   array $data
-     * @return  Commit timestamp
-     */
-    public function insertArray(array $table, array $data);
-
-    /**
-     * Inserts a table row with specified data.
-     *
-     * @param mixed $table The table to insert data into.
-     * @param array $bind Column-value pairs.
+     * Insert multiple rows in multiple tables
+     * @param string $table
+     * @param array $data
      * @return Commit timestamp
      */
-    public function insert($table, array $bind);
+    public function insertArray(string $table, array $data);
 
     /**
-     * Inserts a table row with specified data
-     *
-     * Special for Zero values to identity column
+     * Insert multiple rows in single table
+     * @param string $table
+     * @param array $data
+     * @return Commit timestamp
+     */
+    public function insert(string $table, array $data);
+
+    /**
+     * Single col update in the table
      *
      * @param string $table
-     * @param string $bind
+     * @param string $bindCol
      * @param string $bind
      * @param string $whereCol
      * @param string $where
+     * @param array $data
      * @return Commit timestamp
      */
-    public function update($table, $bindCol, $bind, $whereCol, $where);
+    public function update(string $table, string $bindCol, string $bind, string $whereCol, string $where);
 
     /**
      * Deletes table rows based on a WHERE clause.
      *
-     * @param  mixed $table The table to update.
-     * @param  mixed $where DELETE WHERE clause(s).
+     * @param string $table
+     * @param string $where
      * @return Commit timestamp
      */
-    public function delete($table, $where);
+    public function delete(string $table, string $where);
 
     /**
-     * Deletes table rows based on a WHERE clause.
-     * @param  string $sql
-     * @param  string $col
-     * @param  string $type
+     * Cast the column with type
+     * @param string $sql
+     * @param string $col
+     * @param string $type
      * @return string
      */
-    public function addCast($sql, $col, $type);
+    public function addCast(string $sql, string $col, string $type);
 
 }
