@@ -11,7 +11,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Phrase;
-use Magento\Framework\DB\Adapter\Spanner\Spanner as Spanner;
+use Magento\Framework\DB\Adapter\Spanner\Spanner;
 
 /**
  * Abstract resource model
