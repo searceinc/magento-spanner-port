@@ -76,7 +76,7 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @return mixed|null
      */
-    public function rawQuery($sql)
+    public function rawQuery(string $sql)
     {
         $result = $this->query($sql);
         return $result;
@@ -86,10 +86,10 @@ class Spanner implements SpannerInterface
      * Run row query and Fetch data
      *
      * @param string $sql
-     * @param string|int $field
+     * @param string $field
      * @return mixed|null
      */
-    public function rawFetchRow($sql, $field = null)
+    public function rawFetchRow(string $sql, string $field = null)
     {
         $result = $this->rawQuery($sql);
         if (!$result) {
@@ -114,7 +114,7 @@ class Spanner implements SpannerInterface
      * @param array $data
      * @return object
      */
-    public function fetchOne($data)
+    public function fetchOne(array $data)
     {
         return $data->rows()->current();
     }
@@ -125,7 +125,7 @@ class Spanner implements SpannerInterface
      * @param array $data
      * @return array
      */
-    public function fetch($data)
+    public function fetch(array $data)
     {
         return iterator_to_array($data->rows());
     }
@@ -136,7 +136,7 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @return array
      */
-    public function fetchAll($sql)
+    public function fetchAll(string $sql)
     {
         $result = $this->query($sql);
         return $this->fetch($result);
@@ -145,10 +145,10 @@ class Spanner implements SpannerInterface
     /**
      * query
      *
-     * @param string| SQL statement.
+     * @param string $sql
      * @return mixed|null
      */
-    public function query($sql)
+    public function query(string $sql)
     {
         $results = $this->_connection->execute($sql);
         return $results;
@@ -157,10 +157,10 @@ class Spanner implements SpannerInterface
     /**
      * Allows multiple queries
      *
-     * @param string| SQL statement.
+     * @param string $sql
      * @return mixed|null
      */
-    public function multiQuery($sql)
+    public function multiQuery(string $sql)
     {
         return $this->query($sql);
     }
@@ -171,7 +171,7 @@ class Spanner implements SpannerInterface
      * @param string $string
      * @return string
      */
-    protected function _unQuote($string)
+    protected function unQuote($string)
     {
         $translate = [
             "\\000" => "\000",
@@ -187,11 +187,11 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
-     * @param array $table
+     * @param string $table
      * @param array $data
      * @return Commit timestamp
      */
-    public function insertArray(array $table, array $data) 
+    public function insertArray(string $table, array $data) 
     {
         $session = $this->_connection->transaction(['singleUse' => true]);
         for ($i = 0; $i <= count($table); $i++) {
@@ -207,7 +207,7 @@ class Spanner implements SpannerInterface
      * @param array $data
      * @return Commit timestamp
      */
-    public function insert($table, array $data) 
+    public function insert(string $table, array $data) 
     {
         $results = $this->_connection->transaction(['singleUse' => true])
                     ->insertBatch($table, [$data])
@@ -218,10 +218,10 @@ class Spanner implements SpannerInterface
     /**
      * Single col update in the table
      * @param string $table
-     * @param array $data
+     * @param string $bind
      * @return Commit timestamp
      */
-    public function update($table, $bind) 
+    public function update(string $table, string $bind) 
     {
         $results = $this->_connection->transaction(['singleUse' => true])
                     ->updateBatch($table, [ $bind ])
@@ -235,7 +235,7 @@ class Spanner implements SpannerInterface
      * @param string $where
      * @return Commit timestamp
      */
-    public function delete($table, $where) 
+    public function delete(string $table, string $where) 
     {
         $sql = "DELETE FROM ".$table." WHERE ".$where;
         $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
@@ -247,7 +247,6 @@ class Spanner implements SpannerInterface
 
     /**
      * Format Date to T and Z iso format
-     * @param string $date
      * @return string
      */
     public function formatDate()
@@ -262,8 +261,7 @@ class Spanner implements SpannerInterface
      */
     public function getAutoIncrement() 
     {
-        if (function_exists('com_create_guid') === true)
-        {
+        if (function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
         }
 
@@ -275,7 +273,7 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @return object
      */
-    public function fetchRow($sql) 
+    public function fetchRow(string $sql) 
     {
         $result = $this->query($sql);
         return $this->fetchOne($result);
@@ -286,9 +284,9 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @param string $col
      * @param string $type
-     * @return string| SQL statement
+     * @return string 
      */
-    public function addCast($sql, $col, $type) 
+    public function addCast(string $sql, string $col, string $type) 
     {
        $cast = "cast(".$col." as ".$type.")";
        return str_replace($col, $cast, $sql);
@@ -308,17 +306,17 @@ class Spanner implements SpannerInterface
     /**
      * Formates the sql for cloud spanner
      * @param string $sql
+     * @return string $sql
      */
-    public function sanitize_sql($sql)
+    public function sanitizeSql($sql)
     {
         if (preg_match_all("/('[^']*')/", $sql, $m)) {
             $matches = array_shift($m);
             for($i = 0; $i < count($matches); $i++) {
                 $curr =  $matches[$i];
                 $curr = filter_var($curr, FILTER_SANITIZE_NUMBER_INT);
-                if (is_numeric($curr))
-                {
-                    $sql = str_replace($matches[$i],(int) $curr, $sql);
+                if (is_numeric($curr)) {
+                    $sql = str_replace($matches[$i], $curr, $sql);
                 }
             }
         }
