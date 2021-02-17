@@ -317,7 +317,7 @@ class Spanner implements SpannerInterface
      * @param string $sql
      * @return string $sql
      */
-    public function sanitizeSql($sql)
+    public function sanitizeSql(string $sql)
     {
         if (preg_match_all("/('[^']*')/", $sql, $m)) {
             $matches = array_shift($m);
@@ -338,7 +338,7 @@ class Spanner implements SpannerInterface
     /**
      * Convert to T and Z iso format
      * @param string $date
-     * @throws Exception
+     * @return string
      */
     public function convertDate($date)
     {
