@@ -113,18 +113,18 @@ class Spanner implements SpannerInterface
     {
         $result = $this->rawQuery($sql);
         if (!$result) {
-            return false;
+            return null;
         }
 
         $row = $this->fetch($result);
         if (!$row) {
-            return false;
+            return null;
         }
 
         if (empty($field)) {
             return $row;
         } else {
-            return $row[$field] ?? false;
+            return $row[$field] ?? null;
         }
     }
 
@@ -257,13 +257,16 @@ class Spanner implements SpannerInterface
      * Delete from table
      * @param string $table
      * @param string $where
+     * @param array $params
      * @return Commit timestamp
      */
-    public function delete(string $table, string $where) 
+    public function delete(string $table, string $where, array $params) 
     {
         $sql = "DELETE FROM ".$table." WHERE ".$where;
-        $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
-            $rowCount = $t->executeUpdate($sql);
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql, $params) {
+            $t->executeUpdate($sql, [
+                'parameters' => $params
+            ]);
             $t->commit();
         });
         return $results;

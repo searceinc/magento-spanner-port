@@ -348,7 +348,7 @@ abstract class AbstractDb extends AbstractResource
      */
     public function getSpannerConnection()
     {
-        if(!$this->_spanner_conn) {
+        if (!$this->_spanner_conn) {
             $this->_spanner_conn = new Spanner();
         }
         return $this->_spanner_conn;
@@ -398,7 +398,7 @@ abstract class AbstractDb extends AbstractResource
     protected function getLoadSelectForSpanner(string $field, string $value)
     {
         $select = "select * from ".$this->getMainTable()." where ".$field;
-        if(is_numeric($value)) {
+        if (is_numeric($value)) {
             $select = $select."=".$value."";
         } else {
             $select = $select."='".$value."'";
@@ -456,10 +456,8 @@ abstract class AbstractDb extends AbstractResource
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
                     $this->updateObjectInSpanner($object);
-                    //$this->updateObject($object);
                   } else {
                     $this->saveNewObjectInSpanner($object);
-                    //$this->saveNewObject($object);
                   }
                
                 $this->unserializeFields($object);
@@ -521,13 +519,9 @@ abstract class AbstractDb extends AbstractResource
     public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
-        if($object->getId()) {
-            if(is_numeric($object->getId())) {
-                $condition = $this->getIdFieldName() . '='. $object->getId();
-            } else {
-                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
-            }
-            $con->delete($this->getMainTable(), $condition);
+        if ($object->getId()) {
+            $condition = $this->getIdFieldName() .'=@Value';
+            $con->delete($this->getMainTable(), $condition, [ 'Value' => $object->getId() ]);
         }
     }
 
@@ -889,18 +883,18 @@ abstract class AbstractDb extends AbstractResource
             $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
         }
 
-        if(isset($bind['added_at'])) {
-            $bind['added_at'] =  $con->formatDate();
+        if (isset($bind['added_at'])) {
+            $bind['added_at'] = $con->formatDate();
         }
 
-       if($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
-            $bind['created_at'] =  $con->formatDate();
-            $bind['updated_at'] =  $con->formatDate();
+       if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
+            $bind['created_at'] = $con->formatDate();
+            $bind['updated_at'] = $con->formatDate();
             $bind['free_shipping'] =  1;
        }
 
-        if(isset($bind['last_visit_at'])) {
-            $bind['last_visit_at']  =  $con->formatDate();
+        if (isset($bind['last_visit_at'])) {
+            $bind['last_visit_at'] = $con->formatDate();
         }
 
         $con->insert($this->getMainTable(), $bind);
@@ -928,23 +922,23 @@ abstract class AbstractDb extends AbstractResource
         if ($this->_isPkAutoIncrement) {
             $data[$this->getIdFieldName()] = $object->getId();
         }
-        if(isset($data['added_at'])) {
+        if (isset($data['added_at'])) {
             $data['added_at'] =  $con->formatDate();
         }
 
-        if(isset($data['created_at'])) {
+        if (isset($data['created_at'])) {
             $data['created_at'] =  $con->formatDate();
         }
 
-        if(isset($data['updated_at'])) {
+        if (isset($data['updated_at'])) {
             $data['updated_at'] =  $con->formatDate();
         }
 
-        if(isset($data['customer_dob'])) {
+        if (isset($data['customer_dob'])) {
             $data['customer_dob'] =  $con->convertDate($data['customer_dob']);
         }
 
-        if(isset($data['last_visit_at'])) {
+        if (isset($data['last_visit_at'])) {
             $data['last_visit_at']  =  $con->formatDate();
         }
 

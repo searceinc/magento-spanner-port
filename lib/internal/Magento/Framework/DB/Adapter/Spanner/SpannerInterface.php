@@ -89,9 +89,10 @@ interface SpannerInterface
      *
      * @param string $table
      * @param string $where
+     * @param array $params
      * @return Commit timestamp
      */
-    public function delete(string $table, string $where);
+    public function delete(string $table, string $where, array $params);
 
     /**
      * Cast the column with type
