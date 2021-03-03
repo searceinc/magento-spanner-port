@@ -279,6 +279,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Format Date to T and Z iso format
+     *
      * @return string
      */
     public function formatDate()
