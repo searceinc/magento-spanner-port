@@ -330,6 +330,7 @@ class Spanner implements SpannerInterface
     
     /**
      * Closes the connection.
+     *
      * @return void
      */
     public function closeConnection()
