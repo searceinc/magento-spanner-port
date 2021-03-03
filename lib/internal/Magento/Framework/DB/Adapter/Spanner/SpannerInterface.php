@@ -18,7 +18,6 @@ interface SpannerInterface
 
     /**
      * Fetches all SQL result rows as a sequential array.
-     *
      * Uses the current fetchMode for the adapter.
      *
      * @param string $sql
