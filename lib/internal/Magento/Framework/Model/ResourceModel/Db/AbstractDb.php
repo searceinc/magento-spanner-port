@@ -816,7 +816,7 @@ abstract class AbstractDb extends AbstractResource
 
     /**
      * Get the array of data fields that was changed or added
-     *
+     * 
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -825,6 +825,7 @@ abstract class AbstractDb extends AbstractResource
     {
         $data = $object->getData();
         foreach ($object->getStoredData() as $key => $value) {
+            /* Only the updated values get filtered */
             if (array_key_exists($key, $data) && $data[$key] === $value) {
                 unset($data[$key]);
             }
