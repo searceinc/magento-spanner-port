@@ -344,7 +344,7 @@ abstract class AbstractDb extends AbstractResource
     /**
      * Retrieve connection object
      *
-     * @return SpannerAdapterInterface
+     * @return \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
      */
     public function getSpannerConnection()
     {
