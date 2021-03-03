@@ -348,7 +348,7 @@ abstract class AbstractDb extends AbstractResource
      */
     public function getSpannerConnection()
     {
-        if(!$this->_spanner_conn) {
+        if (!$this->_spanner_conn) {
             $this->_spanner_conn = new Spanner();
         }
         return $this->_spanner_conn;
