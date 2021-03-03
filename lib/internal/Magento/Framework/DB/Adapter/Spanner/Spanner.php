@@ -338,6 +338,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Convert to T and Z iso format
+     *
      * @param string $date
      * @return string
      */

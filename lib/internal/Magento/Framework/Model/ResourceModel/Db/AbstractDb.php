@@ -520,8 +520,8 @@ abstract class AbstractDb extends AbstractResource
     public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
-        if($object->getId()) {
-            if(is_numeric($object->getId())) {
+        if ($object->getId()) {
+            if (is_numeric($object->getId())) {
                 $condition = $this->getIdFieldName() . '='. $object->getId();
             } else {
                 $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
