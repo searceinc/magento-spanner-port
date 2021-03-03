@@ -304,6 +304,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Returns the single row
+     *
      * @param string $sql
      * @return object
      */
