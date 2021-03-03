@@ -56,7 +56,8 @@ class Spanner implements SpannerInterface
      * Constructor
      * init connection
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->_connect();
     }
 
