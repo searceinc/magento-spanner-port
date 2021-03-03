@@ -40,17 +40,17 @@ interface SpannerInterface
     /**
      * Returns first row
      *
-     * @param array $data
+     * @param object $data
      * @return object
      */
-    public function fetchOne(array $data);
+    public function fetchOne(object $data);
 
     /**
-     * Format Date to T and Z iso format
-     * @param string $date
+     * Format Date to internal database date format
+     *
      * @return string
      */
-    public function formatDate(string $date);
+    public function formatDate();
 
     /**
      * Returns auto increment field if exists
@@ -79,14 +79,10 @@ interface SpannerInterface
      * Single col update in the table
      *
      * @param string $table
-     * @param string $bindCol
-     * @param string $bind
-     * @param string $whereCol
-     * @param string $where
-     * @param array $data
+     * @param array $bind
      * @return Commit timestamp
      */
-    public function update(string $table, string $bindCol, string $bind, string $whereCol, string $where);
+    public function update(string $table, array $bind);
 
     /**
      * Deletes table rows based on a WHERE clause.
@@ -106,4 +102,16 @@ interface SpannerInterface
      */
     public function addCast(string $sql, string $col, string $type);
 
+    /**
+     * Formats the sql for Cloud Spanner
+     * Example 
+     * Input SQL : <select statement> WHERE (`product_id` = '340') ORDER BY position ASC
+     * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position ASC
+     * In the above example integer `340` is sanitized by removing single quotes.
+     * Sanitization is required since Cloud Spanner is strict type
+     *
+     * @param string $sql
+     * @return string $sql
+     */
+    public function sanitizeSql(string $sql);
 }

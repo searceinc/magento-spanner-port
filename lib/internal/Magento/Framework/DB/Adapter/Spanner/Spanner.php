@@ -4,6 +4,7 @@ namespace Magento\Framework\DB\Adapter\Spanner;
 use Google\Cloud\Spanner\SpannerClient;
 use Google\Cloud\Spanner\Transaction;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
+use Magento\Framework\Stdlib\DateTime;
 
 /**
  * Cloud Spanner database adapter
@@ -110,10 +111,10 @@ class Spanner implements SpannerInterface
     /**
      * Returns first row
      *
-     * @param array $data
+     * @param object $data
      * @return object
      */
-    public function fetchOne(array $data)
+    public function fetchOne(object $data)
     {
         return $data->rows()->current();
     }
@@ -211,7 +212,7 @@ class Spanner implements SpannerInterface
     public function insert(string $table, array $data) 
     {
         $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
-            $t->insertBatch($table, $data);
+            $t->insertBatch($table, [ $data ]);
             $t->commit();
         });
         return $results;
@@ -220,19 +221,13 @@ class Spanner implements SpannerInterface
     /**
      * Single col update in the table
      * @param string $table
-     * @param string $bindCol
-     * @param string $bind
-     * @param string $whereCol
-     * @param string $where
-     * @param array $data
+     * @param array $bind
      * @return Commit timestamp
      */
-    public function update(string $table, string $bindCol, string $bind, string $whereCol, string $where) 
+    public function update(string $table, array $bind) 
     {
-        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $whereCol, $where, $bindCol, $bind) {
-            $t->updateBatch($table, [
-                [$whereCol => $where, $bindCol => $bind]
-            ]);
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $bind) {
+            $t->updateBatch($table, [ $bind ]);
             $t->commit();
         });
         return $results;
@@ -256,11 +251,11 @@ class Spanner implements SpannerInterface
 
     /**
      * Format Date to T and Z iso format
-     * @param string $date
      * @return string
      */
-    public function formatDate(string $date)
+    public function formatDate()
     {
+        $date = (new \DateTime())->format(DateTime::DATETIME_PHP_FORMAT);
         return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
     }
 
@@ -310,5 +305,31 @@ class Spanner implements SpannerInterface
         if ($this->_connection) {
             $this->_connection->close();
         }
+    }
+
+    /**
+     * Formats the sql for Cloud Spanner
+     * Example 
+     * Input SQL : <select statement> WHERE (`product_id` = '340') ORDER BY position ASC
+     * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position ASC
+     * In the above example integer `340` is sanitized by removing single quotes.
+     * Sanitization is required since Cloud Spanner is strict type
+     *
+     * @param string $sql
+     * @return string $sql
+     */
+    public function sanitizeSql(string $sql)
+    {
+        if (preg_match_all("/('[^']*')/", $sql, $m)) {
+            $matches = array_shift($m);
+            for($i = 0; $i < count($matches); $i++) {
+                $curr =  $matches[$i];
+                $curr = filter_var($curr, FILTER_SANITIZE_NUMBER_INT);
+                if (is_numeric($curr)) {
+                    $sql = str_replace($matches[$i], $curr, $sql);
+                }
+            }
+        }
+        return $sql;
     }
 }

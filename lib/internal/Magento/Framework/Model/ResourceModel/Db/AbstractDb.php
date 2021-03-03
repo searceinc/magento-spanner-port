@@ -11,6 +11,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Phrase;
+use Magento\Framework\DB\Adapter\Spanner\Spanner;
 
 /**
  * Abstract resource model
@@ -44,6 +45,13 @@ abstract class AbstractDb extends AbstractResource
      * @var array
      */
     protected $_connections = [];
+
+    /**
+     * Cloud Spanner connection
+     *
+     * @var \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
+     */
+    protected $_spanner_conn;
 
     /**
      * Resource model name that contains entities (names of tables)
@@ -334,6 +342,19 @@ abstract class AbstractDb extends AbstractResource
     }
 
     /**
+     * Retrieve connection object
+     *
+     * @return \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
+     */
+    public function getSpannerConnection()
+    {
+        if (!$this->_spanner_conn) {
+            $this->_spanner_conn = new Spanner();
+        }
+        return $this->_spanner_conn;
+    }
+
+    /**
      * Load an object
      *
      * @param \Magento\Framework\Model\AbstractModel $object
@@ -348,11 +369,10 @@ abstract class AbstractDb extends AbstractResource
             $field = $this->getIdFieldName();
         }
 
-        $connection = $this->getConnection();
-        if ($connection && $value !== null) {
-            $select = $this->_getLoadSelect($field, $value, $object);
-            $data = $connection->fetchRow($select);
-
+        $con = $this->getSpannerConnection();
+        if ($con && $value !== null) {
+            $select = $this->getLoadSelectForSpanner($field, $value);
+            $data = $con->fetchRow($select);
             if ($data) {
                 $object->setData($data);
             }
@@ -365,6 +385,24 @@ abstract class AbstractDb extends AbstractResource
         $object->setHasDataChanges(false);
 
         return $this;
+    }
+
+    /**
+     * Retrieve select object for load object data
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    protected function getLoadSelectForSpanner(string $field, string $value)
+    {
+        $select = "select * from ".$this->getMainTable()." where ".$field;
+        if (is_numeric($value)) {
+            $select = $select."=".$value."";
+        } else {
+            $select = $select."='".$value."'";
+        }
+        return $select;
     }
 
     /**
@@ -416,10 +454,14 @@ abstract class AbstractDb extends AbstractResource
                 $this->_checkUnique($object);
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
-                    $this->updateObject($object);
-                } else {
-                    $this->saveNewObject($object);
-                }
+                    $this->updateObjectInSpanner($object);
+                    //$this->updateObject($object);
+                  } else {
+                    $this->saveNewObjectInSpanner($object);
+                    //$this->saveNewObject($object);
+                  }
+               
+   
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
             }
@@ -457,6 +499,7 @@ abstract class AbstractDb extends AbstractResource
                 $this->getConnection()->quoteInto($this->getIdFieldName() . '=?', $object->getId()),
                 $object->getData()
             );
+            $this->deleteInSpanner($object);
             $this->_afterDelete($object);
             $object->isDeleted(true);
             $object->afterDelete();
@@ -467,6 +510,23 @@ abstract class AbstractDb extends AbstractResource
             throw $e;
         }
         return $this;
+    }
+
+    /**
+     * Delete from Cloud Spanner
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @return void
+     */
+    public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $con = $this->getSpannerConnection();
+        if (is_numeric($object->getId())) {
+            $condition = $this->getIdFieldName() . '='. $object->getId();
+        } else {
+            $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+        }
+        $con->delete($this->getMainTable(), $condition);
     }
 
     /**
@@ -755,6 +815,30 @@ abstract class AbstractDb extends AbstractResource
     }
 
     /**
+     * Get the array of data fields that was changed or added
+     * 
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function prepareDataForSpannerUpdate(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $data = $object->getData();
+        foreach ($object->getStoredData() as $key => $value) {
+            /* Only the updated values get filtered */
+            if (array_key_exists($key, $data) && $data[$key] === $value) {
+                unset($data[$key]);
+            }
+        }
+        $dataObject = clone $object;
+        $dataObject->setData($data);
+        $data = $this->_prepareDataForTable($dataObject, $this->getMainTable());
+        unset($dataObject);
+
+        return $data;
+    }
+
+    /**
      * Check if object is new
      *
      * @param \Magento\Framework\Model\AbstractModel $object
@@ -786,6 +870,67 @@ abstract class AbstractDb extends AbstractResource
 
         if ($this->_useIsObjectNew) {
             $object->isObjectNew(false);
+        }
+    }
+
+    /**
+     * Save New Object in Cloud Spanner
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return void
+     */
+    protected function saveNewObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $bind = $this->_prepareDataForSave($object);
+        $con = $this->getSpannerConnection();
+        if ($this->_isPkAutoIncrement) {
+            $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
+        }
+
+        if (isset($bind['added_at'])) {
+            $bind['added_at'] =  $con->formatDate();
+        }
+
+        if (isset($bind['last_visit_at'])) {
+            $bind['last_visit_at']  =  $con->formatDate();
+        }
+
+        $con->insert($this->getMainTable(), $bind);
+
+        if ($this->_isPkAutoIncrement) {
+            $object->setId($bind[$this->getIdFieldName()]);
+        }
+
+        if ($this->_useIsObjectNew) {
+            $object->isObjectNew(false);
+        }
+    }
+
+    /**
+     * Update existing object
+     *
+     * @param \Magento\Framework\Model\AbstractModel $object
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return void
+     */
+    protected function updateObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $con = $this->getSpannerConnection();
+        $data = $this->prepareDataForSpannerUpdate($object);
+        if ($this->_isPkAutoIncrement) {
+            $data[$this->getIdFieldName()] = $object->getId();
+        }
+        if (isset($data['added_at'])) {
+            $data['added_at'] =  $con->formatDate();
+        }
+
+        if (isset($data['last_visit_at'])) {
+            $data['last_visit_at']  =  $con->formatDate();
+        }
+
+        if (!empty($data)) {
+            $con->update($this->getMainTable(), $data);
         }
     }
 
