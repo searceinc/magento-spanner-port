@@ -371,7 +371,6 @@ abstract class AbstractDb extends AbstractResource
 
         $con = $this->getSpannerConnection();
         if ($con && $value !== null) {
-            
             $select = $this->getLoadSelectForSpanner($field, $value);
             $data = $con->fetchRow($select);
             if ($data) {
