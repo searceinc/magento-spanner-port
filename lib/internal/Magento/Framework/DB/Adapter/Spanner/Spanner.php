@@ -1,4 +1,5 @@
 <?php
+
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
