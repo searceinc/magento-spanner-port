@@ -311,6 +311,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Cast the column with type
+     *
      * @param string $sql
      * @param string $col
      * @param string $type
