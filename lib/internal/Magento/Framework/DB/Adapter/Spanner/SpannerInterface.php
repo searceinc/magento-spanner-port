@@ -8,7 +8,6 @@ namespace Magento\Framework\DB\Adapter\Spanner;
  */
 interface SpannerInterface
 {
-
     /**
      * Prepares and executes an SQL statement with bound data.
      *
