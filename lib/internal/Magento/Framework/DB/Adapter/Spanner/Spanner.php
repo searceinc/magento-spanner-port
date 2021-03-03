@@ -243,6 +243,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Single col update in the table
+     *
      * @param string $table
      * @param array $bind
      * @return Commit timestamp
