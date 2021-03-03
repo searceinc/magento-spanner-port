@@ -458,7 +458,7 @@ abstract class AbstractDb extends AbstractResource
                     $this->updateObjectInSpanner($object);
                   } else {
                     $this->saveNewObjectInSpanner($object);
-                  }
+                }
                
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
