@@ -398,7 +398,7 @@ abstract class AbstractDb extends AbstractResource
     protected function getLoadSelectForSpanner(string $field, string $value)
     {
         $select = "select * from ".$this->getMainTable()." where ".$field;
-        if(is_numeric($value)) {
+        if (is_numeric($value)) {
             $select = $select."=".$value."";
         } else {
             $select = $select."='".$value."'";
