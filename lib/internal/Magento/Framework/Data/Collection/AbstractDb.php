@@ -12,6 +12,7 @@ use Magento\Framework\DB\Select;
 use Magento\Framework\Api\ExtensionAttribute\JoinDataInterface;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Psr\Log\LoggerInterface as Logger;
+use Magento\Framework\DB\Adapter\Spanner\Spanner;
 
 /**
  * Base items collection class
@@ -29,6 +30,13 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
      * @var \Magento\Framework\DB\Adapter\AdapterInterface
      */
     protected $_conn;
+
+    /**
+     * Cloud Spanner connection
+     *
+     * @var \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
+     */
+    protected $_spanner_conn;
 
     /**
      * Select object
@@ -116,6 +124,7 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
         if ($connection !== null) {
             $this->setConnection($connection);
         }
+        $this->setSpannerConnection();
         $this->_logger = $logger;
     }
 
@@ -191,6 +200,18 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     }
 
     /**
+     * Set Cloud Spanner database connection adapter
+     *
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function setSpannerConnection()
+    {
+        $this->_spanner_conn = new Spanner();
+    }
+    
+
+    /**
      * Get \Magento\Framework\DB\Select instance
      *
      * @return Select
@@ -208,6 +229,16 @@ abstract class AbstractDb extends \Magento\Framework\Data\Collection
     public function getConnection()
     {
         return $this->_conn;
+    }
+
+    /**
+     * Retrieve connection object
+     *
+     * @return SpannerAdapterInterface
+     */
+    public function getSpannerConnection()
+    {
+        return $this->_spanner_conn;
     }
 
     /**
