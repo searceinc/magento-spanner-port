@@ -95,6 +95,7 @@ interface SpannerInterface
 
     /**
      * Cast the column with type
+     *
      * @param string $sql
      * @param string $col
      * @param string $type
