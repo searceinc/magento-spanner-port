@@ -13,7 +13,6 @@ use Magento\Framework\Stdlib\DateTime;
  * Cloud Spanner database adapter
  *
  */
-
 class Spanner implements SpannerInterface
 {
     /**
