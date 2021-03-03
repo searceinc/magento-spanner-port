@@ -819,7 +819,7 @@ abstract class AbstractDb extends AbstractResource
      *
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return array
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function prepareDataForSpannerUpdate(\Magento\Framework\Model\AbstractModel $object)
     {
@@ -876,7 +876,7 @@ abstract class AbstractDb extends AbstractResource
      * Save New Object in Cloud Spanner
      *
      * @param \Magento\Framework\Model\AbstractModel $object
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
     protected function saveNewObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
@@ -910,7 +910,7 @@ abstract class AbstractDb extends AbstractResource
      * Update existing object
      *
      * @param \Magento\Framework\Model\AbstractModel $object
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
     protected function updateObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
