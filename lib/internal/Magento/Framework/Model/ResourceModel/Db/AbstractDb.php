@@ -810,7 +810,7 @@ abstract class AbstractDb extends AbstractResource
         return $data;
     }
 
-        /**
+    /**
      * Get the array of data fields that was changed or added
      *
      * @param \Magento\Framework\Model\AbstractModel $object
