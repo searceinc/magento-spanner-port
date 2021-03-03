@@ -123,9 +123,9 @@ class Spanner implements SpannerInterface
 
         if (empty($field)) {
             return $row;
-        } else {
-            return $row[$field] ?? null;
         }
+            
+        return $row[$field] ?? null;
     }
 
     /**
