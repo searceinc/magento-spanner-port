@@ -259,6 +259,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Delete from table
+     *
      * @param string $table
      * @param string $where
      * @param array $params
