@@ -8,7 +8,6 @@ namespace Magento\Framework\DB\Adapter\Spanner;
  */
 interface SpannerInterface
 {
-
     /**
      * Prepares and executes an SQL statement with bound data.
      *
@@ -19,7 +18,6 @@ interface SpannerInterface
 
     /**
      * Fetches all SQL result rows as a sequential array.
-     *
      * Uses the current fetchMode for the adapter.
      *
      * @param string $sql
@@ -29,7 +27,6 @@ interface SpannerInterface
 
     /**
      * Fetches the first row of the SQL result.
-     *
      * Uses the current fetchMode for the adapter.
      *
      * @param string $sql
@@ -61,6 +58,7 @@ interface SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
+     *
      * @param array $table
      * @param array $data
      * @return Commit timestamp
@@ -69,6 +67,7 @@ interface SpannerInterface
 
     /**
      * Insert multiple rows in single table
+     *
      * @param string $table
      * @param array $data
      * @return Commit timestamp
@@ -96,6 +95,7 @@ interface SpannerInterface
 
     /**
      * Cast the column with type
+     *
      * @param string $sql
      * @param string $col
      * @param string $type
@@ -110,6 +110,7 @@ interface SpannerInterface
      * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position  ASC
      * In the above example integer `340` is sanitized by removing single quotes.
      * Sanitization is required since Cloud Spanner is strict type
+     *
      * @param string $sql
      * @return string $sql
      */
@@ -117,6 +118,7 @@ interface SpannerInterface
 
     /**
      * Convert to T and Z iso format
+     *
      * @param string $date
      * @return string
      */

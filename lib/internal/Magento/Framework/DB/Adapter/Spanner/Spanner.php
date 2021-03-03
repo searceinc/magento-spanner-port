@@ -1,4 +1,5 @@
 <?php
+
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
@@ -12,7 +13,6 @@ use Magento\Framework\Stdlib\DateTime;
  * Cloud Spanner database adapter
  *
  */
-
 class Spanner implements SpannerInterface
 {
     /**
@@ -56,8 +56,8 @@ class Spanner implements SpannerInterface
      * Constructor
      * init connection
      */
-
-    public function __construct() {
+    public function __construct()
+    {
         $this->_connect();
     }
 
@@ -81,6 +81,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Creates the session pool for spanner connection
+     *
      * @return SessionPoolInterface
      * @throws Exception
      */
@@ -207,6 +208,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
+     *
      * @param array $table
      * @param array $data
      * @return Commit timestamp
@@ -225,6 +227,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in single table
+     *
      * @param string $table
      * @param array $data
      * @return Commit timestamp
@@ -240,6 +243,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Single col update in the table
+     *
      * @param string $table
      * @param array $bind
      * @return Commit timestamp
@@ -255,6 +259,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Delete from table
+     *
      * @param string $table
      * @param string $where
      * @param array $params
@@ -274,6 +279,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Format Date to T and Z iso format
+     *
      * @return string
      */
     public function formatDate()
@@ -284,6 +290,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Generate UUID
+     *
      * @return string
      */
     public function getAutoIncrement() 
@@ -297,6 +304,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Returns the single row
+     *
      * @param string $sql
      * @return object
      */
@@ -308,6 +316,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Cast the column with type
+     *
      * @param string $sql
      * @param string $col
      * @param string $type
@@ -321,6 +330,7 @@ class Spanner implements SpannerInterface
     
     /**
      * Closes the connection.
+     *
      * @return void
      */
     public function closeConnection()
@@ -337,6 +347,7 @@ class Spanner implements SpannerInterface
      * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position  ASC
      * In the above example integer `340` is sanitized by removing single quotes.
      * Sanitization is required since Cloud Spanner is strict type
+     *
      * @param string $sql
      * @return string $sql
      */
@@ -360,6 +371,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Convert to T and Z iso format
+     *
      * @param string $date
      * @return string
      */

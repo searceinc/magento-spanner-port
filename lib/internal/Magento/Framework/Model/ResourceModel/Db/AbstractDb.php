@@ -344,7 +344,7 @@ abstract class AbstractDb extends AbstractResource
     /**
      * Retrieve connection object
      *
-     * @return SpannerAdapterInterface
+     * @return \Magento\Framework\DB\Adapter\Spanner\SpannerAdapterInterface
      */
     public function getSpannerConnection()
     {
@@ -371,7 +371,6 @@ abstract class AbstractDb extends AbstractResource
 
         $con = $this->getSpannerConnection();
         if ($con && $value !== null) {
-            
             $select = $this->getLoadSelectForSpanner($field, $value);
             $data = $con->fetchRow($select);
             if ($data) {
@@ -456,9 +455,9 @@ abstract class AbstractDb extends AbstractResource
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
                     $this->updateObjectInSpanner($object);
-                  } else {
+                } else {
                     $this->saveNewObjectInSpanner($object);
-                  }
+                }
                
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
@@ -810,7 +809,7 @@ abstract class AbstractDb extends AbstractResource
         return $data;
     }
 
-        /**
+    /**
      * Get the array of data fields that was changed or added
      *
      * @param \Magento\Framework\Model\AbstractModel $object
