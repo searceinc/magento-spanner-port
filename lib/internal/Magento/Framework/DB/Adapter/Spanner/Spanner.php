@@ -284,6 +284,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Generate UUID
+     *
      * @return string
      */
     public function getAutoIncrement() 
