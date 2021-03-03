@@ -888,7 +888,7 @@ abstract class AbstractDb extends AbstractResource
             $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
         }
 
-        if(isset($bind['added_at'])) {
+        if (isset($bind['added_at'])) {
             $bind['added_at'] =  $con->formatDate();
         }
 
