@@ -892,7 +892,7 @@ abstract class AbstractDb extends AbstractResource
             $bind['added_at'] =  $con->formatDate();
         }
 
-        if(isset($bind['last_visit_at'])) {
+        if (isset($bind['last_visit_at'])) {
             $bind['last_visit_at']  =  $con->formatDate();
         }
 
