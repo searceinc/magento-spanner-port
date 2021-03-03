@@ -924,7 +924,7 @@ abstract class AbstractDb extends AbstractResource
             $data['added_at'] =  $con->formatDate();
         }
 
-        if(isset($data['last_visit_at'])) {
+        if (isset($data['last_visit_at'])) {
             $data['last_visit_at']  =  $con->formatDate();
         }
 
