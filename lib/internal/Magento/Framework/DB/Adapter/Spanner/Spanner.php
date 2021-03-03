@@ -208,6 +208,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
+     *
      * @param array $table
      * @param array $data
      * @return Commit timestamp
