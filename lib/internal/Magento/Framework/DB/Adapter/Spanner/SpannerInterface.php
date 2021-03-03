@@ -27,7 +27,6 @@ interface SpannerInterface
 
     /**
      * Fetches the first row of the SQL result.
-     *
      * Uses the current fetchMode for the adapter.
      *
      * @param string $sql
