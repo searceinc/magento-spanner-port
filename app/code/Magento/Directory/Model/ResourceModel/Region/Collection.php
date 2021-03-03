@@ -93,7 +93,6 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         parent::_initSelect();
         $locale = $this->_localeResolver->getLocale();
 
-        //$this->addBindParam(':region_locale', $locale);
         $this->getSelect()->joinLeft(
             ['rname' => $this->_regionNameTable],
             'main_table.region_id = rname.region_id AND rname.locale = "'.$locale.'"',
