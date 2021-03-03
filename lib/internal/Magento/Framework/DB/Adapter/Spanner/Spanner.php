@@ -81,6 +81,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Creates the session pool for spanner connection
+     *
      * @return SessionPoolInterface
      * @throws Exception
      */
