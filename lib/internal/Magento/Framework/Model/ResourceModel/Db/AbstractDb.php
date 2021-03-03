@@ -921,7 +921,7 @@ abstract class AbstractDb extends AbstractResource
         if ($this->_isPkAutoIncrement) {
             $data[$this->getIdFieldName()] = $object->getId();
         }
-        if(isset($data['added_at'])) {
+        if (isset($data['added_at'])) {
             $data['added_at'] =  $con->formatDate();
         }
 
