@@ -811,15 +811,16 @@ abstract class AbstractDb extends AbstractResource
 
     /**
      * Get the array of data fields that was changed or added
-     *
+     * 
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return array
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function prepareDataForSpannerUpdate(\Magento\Framework\Model\AbstractModel $object)
     {
         $data = $object->getData();
         foreach ($object->getStoredData() as $key => $value) {
+            /* Only the updated values get filtered */
             if (array_key_exists($key, $data) && $data[$key] === $value) {
                 unset($data[$key]);
             }
@@ -871,7 +872,7 @@ abstract class AbstractDb extends AbstractResource
      * Save New Object in Cloud Spanner
      *
      * @param \Magento\Framework\Model\AbstractModel $object
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
     protected function saveNewObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
@@ -886,11 +887,11 @@ abstract class AbstractDb extends AbstractResource
             $bind['added_at'] = $con->formatDate();
         }
 
-       if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
+        if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
             $bind['created_at'] = $con->formatDate();
             $bind['updated_at'] = $con->formatDate();
             $bind['free_shipping'] =  1;
-       }
+        }
 
         if (isset($bind['last_visit_at'])) {
             $bind['last_visit_at'] = $con->formatDate();
@@ -911,7 +912,7 @@ abstract class AbstractDb extends AbstractResource
      * Update existing object
      *
      * @param \Magento\Framework\Model\AbstractModel $object
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
     protected function updateObjectInSpanner(\Magento\Framework\Model\AbstractModel $object)
@@ -921,6 +922,7 @@ abstract class AbstractDb extends AbstractResource
         if ($this->_isPkAutoIncrement) {
             $data[$this->getIdFieldName()] = $object->getId();
         }
+
         if (isset($data['added_at'])) {
             $data['added_at'] =  $con->formatDate();
         }
