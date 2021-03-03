@@ -345,8 +345,8 @@ class Spanner implements SpannerInterface
     {
         if ($date) {
             return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
-        } else {
-            return "";
         }
+        
+        return "";
     }
 }
