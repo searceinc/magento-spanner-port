@@ -456,7 +456,7 @@ abstract class AbstractDb extends AbstractResource
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
                     $this->updateObjectInSpanner($object);
-                  } else {
+                } else {
                     $this->saveNewObjectInSpanner($object);
                 }
                
