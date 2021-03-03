@@ -521,7 +521,7 @@ abstract class AbstractDb extends AbstractResource
     {
         $con = $this->getSpannerConnection();
         if ($object->getId()) {
-            if(is_numeric($object->getId())) {
+            if (is_numeric($object->getId())) {
                 $condition = $this->getIdFieldName() . '='. $object->getId();
             } else {
                 $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
