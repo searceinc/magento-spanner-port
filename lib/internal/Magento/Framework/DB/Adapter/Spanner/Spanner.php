@@ -363,9 +363,6 @@ class Spanner implements SpannerInterface
                 }
             }
         }
-
-        $sql = str_replace('RAND()','1', $sql);
-
         return $sql;
     }
 
