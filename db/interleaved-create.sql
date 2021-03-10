@@ -1,3 +1,10 @@
+-- Cloud Spanner schema for Catalog tables.
+-- This schema uses Cloud Spanner interleaved tables to improve read and write performance
+-- Refer 
+-- https://cloud.google.com/spanner/docs/schema-and-data-model#creating_a_hierarchy_of_interleaved_tables
+-- for  more details.
+-- For original MySql Schema please refer app/code/Magento/Catalog/etc/db_schema.xml
+
 --
 -- Interleaved Parent Table
 --
