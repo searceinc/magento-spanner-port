@@ -1,3 +1,13 @@
+/**
+    As part of MySql Migration to Cloud Spanner the tables will get 
+    generated with numeric type for Primary key columns. 
+    To store UUID, data type of these columns should be modified to String. 
+    Hence we will recreate these transaction tables by modifying the 
+    primarykey columns to string data type. 
+    These tables initially does not hold any data hence can be dropped 
+    and created with string data type for primary key columns to store UUID values
+**/
+
 DROP table quote_id_mask;
 
 CREATE TABLE quote_id_mask (
