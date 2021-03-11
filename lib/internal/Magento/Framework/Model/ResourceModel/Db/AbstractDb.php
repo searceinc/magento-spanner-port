@@ -368,7 +368,6 @@ abstract class AbstractDb extends AbstractResource
         if ($field === null) {
             $field = $this->getIdFieldName();
         }
-
         $con = $this->getSpannerConnection();
         if ($con && $value !== null) {
             $select = $this->getLoadSelectForSpanner($field, $value);
@@ -461,7 +460,6 @@ abstract class AbstractDb extends AbstractResource
                     //$this->saveNewObject($object);
                   }
                
-   
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
             }
@@ -521,12 +519,14 @@ abstract class AbstractDb extends AbstractResource
     public function deleteInSpanner(\Magento\Framework\Model\AbstractModel $object)
     {
         $con = $this->getSpannerConnection();
-        if (is_numeric($object->getId())) {
-            $condition = $this->getIdFieldName() . '='. $object->getId();
-        } else {
-            $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+        if ($object->getId()) {
+            if (is_numeric($object->getId())) {
+                $condition = $this->getIdFieldName() . '='. $object->getId();
+            } else {
+                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
+            }
+            $con->delete($this->getMainTable(), $condition);
         }
-        $con->delete($this->getMainTable(), $condition);
     }
 
     /**
@@ -892,6 +892,12 @@ abstract class AbstractDb extends AbstractResource
             $bind['added_at'] =  $con->formatDate();
         }
 
+        if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
+            $bind['created_at'] =  $con->formatDate();
+            $bind['updated_at'] =  $con->formatDate();
+            $bind['free_shipping'] =  1;
+        }
+
         if (isset($bind['last_visit_at'])) {
             $bind['last_visit_at']  =  $con->formatDate();
         }
@@ -921,8 +927,21 @@ abstract class AbstractDb extends AbstractResource
         if ($this->_isPkAutoIncrement) {
             $data[$this->getIdFieldName()] = $object->getId();
         }
+        
         if (isset($data['added_at'])) {
             $data['added_at'] =  $con->formatDate();
+        }
+
+        if (isset($data['created_at'])) {
+            $data['created_at'] =  $con->formatDate();
+        }
+
+        if (isset($data['updated_at'])) {
+            $data['updated_at'] =  $con->formatDate();
+        }
+
+        if (isset($data['customer_dob'])) {
+            $data['customer_dob'] =  $con->convertDate($data['customer_dob']);
         }
 
         if (isset($data['last_visit_at'])) {

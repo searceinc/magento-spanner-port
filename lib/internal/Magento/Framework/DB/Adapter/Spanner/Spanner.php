@@ -269,7 +269,17 @@ class Spanner implements SpannerInterface
             return trim(com_create_guid(), '{}');
         }
 
-        return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));    
+        return sprintf(
+            '%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
+            mt_rand(0, 65535),
+            mt_rand(0, 65535),
+            mt_rand(0, 65535),
+            mt_rand(16384, 20479),
+            mt_rand(32768, 49151),
+            mt_rand(0, 65535),
+            mt_rand(0, 65535),
+            mt_rand(0, 65535)
+        );;    
     }
 
     /**
@@ -308,12 +318,20 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Formats the sql for Cloud Spanner
-     * Example 
-     * Input SQL : <select statement> WHERE (`product_id` = '340') ORDER BY position ASC
-     * Output SQL <select statement> WHERE (`product_id` = 340) ORDER BY position ASC
-     * In the above example integer `340` is sanitized by removing single quotes.
-     * Sanitization is required since Cloud Spanner is strict type
+     * Transforms the query to a legal Spanner query.
+     * The basic issue is that MySQL will implicitly perform type conversions
+     * for literals in queries. For example, if product_id is a column of type bigint,
+     * then both of the following queries will return the same result:
+     *   select * from quote_item where product_id = 42
+     *   select * from quote_item where product_id = '42'
+     * However this is not true for Spanner. Spanner requires that
+     * literals match the type of the column. So if product_id is
+     * a column of type INT64 in Spanner, then the first query above
+     * will be fine, but the second will return an "InvalidArgument" error
+     * because one side of the operation = has type INT64, but the other
+     * has type STRING.
+     * To solve this issue, we transform queries by dropping quotes on
+     * literals. Note that we only do this if the matching variable has INT type.
      *
      * @param string $sql
      * @return string $sql
@@ -322,7 +340,7 @@ class Spanner implements SpannerInterface
     {
         if (preg_match_all("/('[^']*')/", $sql, $m)) {
             $matches = array_shift($m);
-            for($i = 0; $i < count($matches); $i++) {
+            for ($i = 0; $i < count($matches); $i++) {
                 $curr =  $matches[$i];
                 $curr = filter_var($curr, FILTER_SANITIZE_NUMBER_INT);
                 if (is_numeric($curr)) {
@@ -330,6 +348,22 @@ class Spanner implements SpannerInterface
                 }
             }
         }
+
         return $sql;
+    }
+
+    /**
+     * Convert to T and Z iso format
+     *
+     * @param string $date
+     * @return string
+     */
+    public function convertDate(string $date)
+    {
+        if ($date) {
+            return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
+        }
+        
+        return "";
     }
 }
