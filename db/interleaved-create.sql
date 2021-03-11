@@ -37,7 +37,7 @@ CREATE TABLE catalog_product_entity_decimal (
     attribute_id INT64 NOT NULL,
     store_id INT64 NOT NULL,
     entity_id INT64 NOT NULL,
-    value FLOAT64
+    value NUMERIC
 ) PRIMARY KEY (entity_id, value_id), INTERLEAVE IN PARENT catalog_product_entity;
 
 CREATE TABLE catalog_product_entity_int (
