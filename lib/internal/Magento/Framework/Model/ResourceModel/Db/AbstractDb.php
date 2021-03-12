@@ -454,11 +454,9 @@ abstract class AbstractDb extends AbstractResource
                 $this->objectRelationProcessor->validateDataIntegrity($this->getMainTable(), $object->getData());
                 if ($this->isObjectNotNew($object)) {
                     $this->updateObjectInSpanner($object);
-                    //$this->updateObject($object);
-                  } else {
+                } else {
                     $this->saveNewObjectInSpanner($object);
-                    //$this->saveNewObject($object);
-                  }
+                }
                
                 $this->unserializeFields($object);
                 $this->processAfterSaves($object);
@@ -520,12 +518,8 @@ abstract class AbstractDb extends AbstractResource
     {
         $con = $this->getSpannerConnection();
         if ($object->getId()) {
-            if (is_numeric($object->getId())) {
-                $condition = $this->getIdFieldName() . '='. $object->getId();
-            } else {
-                $condition = $this->getIdFieldName() . '="'. $object->getId().'"';
-            }
-            $con->delete($this->getMainTable(), $condition);
+            $condition = $this->getIdFieldName() .'=@Value';
+            $con->delete($this->getMainTable(), $condition, [ 'Value' => $object->getId() ]);
         }
     }
 
@@ -889,17 +883,17 @@ abstract class AbstractDb extends AbstractResource
         }
 
         if (isset($bind['added_at'])) {
-            $bind['added_at'] =  $con->formatDate();
+            $bind['added_at'] = $con->formatDate();
         }
 
         if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
-            $bind['created_at'] =  $con->formatDate();
-            $bind['updated_at'] =  $con->formatDate();
+            $bind['created_at'] = $con->formatDate();
+            $bind['updated_at'] = $con->formatDate();
             $bind['free_shipping'] =  1;
         }
 
         if (isset($bind['last_visit_at'])) {
-            $bind['last_visit_at']  =  $con->formatDate();
+            $bind['last_visit_at'] = $con->formatDate();
         }
 
         $con->insert($this->getMainTable(), $bind);
@@ -927,7 +921,7 @@ abstract class AbstractDb extends AbstractResource
         if ($this->_isPkAutoIncrement) {
             $data[$this->getIdFieldName()] = $object->getId();
         }
-        
+
         if (isset($data['added_at'])) {
             $data['added_at'] =  $con->formatDate();
         }

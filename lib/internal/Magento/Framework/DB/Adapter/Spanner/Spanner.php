@@ -1,7 +1,10 @@
 <?php
+
 namespace Magento\Framework\DB\Adapter\Spanner;
 
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\Session\CacheSessionPool;
+use Google\Auth\Cache\SysVCacheItemPool;
 use Google\Cloud\Spanner\Transaction;
 use Magento\Framework\DB\Adapter\Spanner\SpannerInterface;
 use Magento\Framework\Stdlib\DateTime;
@@ -10,7 +13,6 @@ use Magento\Framework\Stdlib\DateTime;
  * Cloud Spanner database adapter
  *
  */
-
 class Spanner implements SpannerInterface
 {
     /**
@@ -37,6 +39,13 @@ class Spanner implements SpannerInterface
      */
     private $is_emulator = true;
 
+
+    /**
+     * Max session 
+     * @var int
+     */
+    protected $maxsessions = 100;
+
     /**
      * Connection Object
      * Magento\Framework\DB\Adapter\Spanner\SpannerInterface
@@ -47,8 +56,8 @@ class Spanner implements SpannerInterface
      * Constructor
      * init connection
      */
-
-    public function __construct() {
+    public function __construct()
+    {
         $this->_connect();
     }
 
@@ -66,8 +75,20 @@ class Spanner implements SpannerInterface
             return;
         }
         $spanner = new SpannerClient([ 'projectId' => $this->project_id ]);
-        $instance = $spanner->instance($this->instance);
-        $this->_connection = $instance->database($this->database);
+        $sessionPool = $this->createSessionPool();
+        $this->_connection = $spanner->connect($this->instance, $this->database, ['sessionPool' => $sessionPool]);
+    }
+
+    /**
+     * Creates the session pool for spanner connection
+     *
+     * @return SessionPoolInterface
+     * @throws Exception
+     */
+    protected function createSessionPool() 
+    {
+        $cache = new SysVCacheItemPool();
+        return new CacheSessionPool($cache, ['maxSessions' => $this->maxsessions]);
     }
 
     /**
@@ -93,19 +114,19 @@ class Spanner implements SpannerInterface
     {
         $result = $this->rawQuery($sql);
         if (!$result) {
-            return false;
+            return null;
         }
 
         $row = $this->fetch($result);
         if (!$row) {
-            return false;
+            return null;
         }
 
         if (empty($field)) {
             return $row;
-        } else {
-            return $row[$field] ?? false;
         }
+            
+        return $row[$field] ?? null;
     }
 
     /**
@@ -187,6 +208,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in multiple tables
+     *
      * @param array $table
      * @param array $data
      * @return Commit timestamp
@@ -205,6 +227,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Insert multiple rows in single table
+     *
      * @param string $table
      * @param array $data
      * @return Commit timestamp
@@ -220,6 +243,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Single col update in the table
+     *
      * @param string $table
      * @param array $bind
      * @return Commit timestamp
@@ -235,15 +259,19 @@ class Spanner implements SpannerInterface
 
     /**
      * Delete from table
+     *
      * @param string $table
      * @param string $where
+     * @param array $params
      * @return Commit timestamp
      */
-    public function delete(string $table, string $where) 
+    public function delete(string $table, string $where, array $params) 
     {
         $sql = "DELETE FROM ".$table." WHERE ".$where;
-        $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql) {
-            $rowCount = $t->executeUpdate($sql);
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql, $params) {
+            $t->executeUpdate($sql, [
+                'parameters' => $params
+            ]);
             $t->commit();
         });
         return $results;
@@ -251,6 +279,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Format Date to T and Z iso format
+     *
      * @return string
      */
     public function formatDate()
@@ -261,6 +290,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Generate UUID
+     *
      * @return string
      */
     public function getAutoIncrement() 
@@ -284,6 +314,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Returns the single row
+     *
      * @param string $sql
      * @return object
      */
@@ -295,6 +326,7 @@ class Spanner implements SpannerInterface
 
     /**
      * Cast the column with type
+     *
      * @param string $sql
      * @param string $col
      * @param string $type
@@ -308,6 +340,7 @@ class Spanner implements SpannerInterface
     
     /**
      * Closes the connection.
+     *
      * @return void
      */
     public function closeConnection()
@@ -348,7 +381,6 @@ class Spanner implements SpannerInterface
                 }
             }
         }
-
         return $sql;
     }
 
