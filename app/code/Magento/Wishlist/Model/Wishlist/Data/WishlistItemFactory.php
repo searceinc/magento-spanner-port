@@ -27,7 +27,7 @@ class WishlistItemFactory
             $data['quantity'],
             $data['sku'] ?? null,
             $data['parent_sku'] ?? null,
-            isset($data['wishlist_item_id']) ? (int) $data['wishlist_item_id'] : null,
+            isset($data['wishlist_item_id']) ? $data['wishlist_item_id'] : null,
             $data['description'] ?? null,
             isset($data['selected_options']) ? $this->createSelectedOptions($data['selected_options']) : [],
             isset($data['entered_options']) ? $this->createEnteredOptions($data['entered_options']) : []
