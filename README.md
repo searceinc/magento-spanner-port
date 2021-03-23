@@ -505,4 +505,3 @@ When a user needs to delete a item from cart or wish list, this delteInSpanner f
        }
    }
  ```
-
