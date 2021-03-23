@@ -384,7 +384,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
             $visibleInSiteIds = $this->_productVisibility->getVisibleInSiteIds();
             $visibilityConditions = [
                 "cat_index.product_id = {$mainTableName}.product_id",
-                $connection->quoteInto('cat_index.category_id = ?', $rootCategoryId),
+                $connection->quoteInto('cat_index.category_id = ?', (int) $rootCategoryId),
                 $connection->quoteInto('cat_index.visibility IN (?)', $visibleInSiteIds)
             ];
             $this->getSelect()->join(

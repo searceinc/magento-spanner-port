@@ -116,7 +116,6 @@ class SaveHandler
 
             $this->billingAddressPersister->save($quote, $billingAddress);
         }
-
         $this->processShippingAssignment($quote);
         $this->quoteResourceModel->save($quote->collectTotals());
 

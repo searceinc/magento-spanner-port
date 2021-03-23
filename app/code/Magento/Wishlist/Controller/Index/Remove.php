@@ -67,8 +67,7 @@ class Remove extends \Magento\Wishlist\Controller\AbstractIndex implements Actio
         if (!$this->formKeyValidator->validate($this->getRequest())) {
             return $resultRedirect->setPath('*/*/');
         }
-
-        $id = (int)$this->getRequest()->getParam('item');
+        $id = $this->getRequest()->getParam('item');
         /** @var Item $item */
         $item = $this->_objectManager->create(Item::class)->load($id);
         if (!$item->getId()) {

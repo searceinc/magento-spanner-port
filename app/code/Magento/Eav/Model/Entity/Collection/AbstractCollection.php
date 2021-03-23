@@ -10,6 +10,7 @@ use Magento\Framework\App\ResourceConnection\SourceProviderInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
+use Google\Cloud\Spanner\SpannerClient;
 
 /**
  * Entity/Attribute/Model - collection abstract
@@ -1198,7 +1199,18 @@ abstract class AbstractCollection extends AbstractDb implements SourceProviderIn
                     } else {
                         $select = $selects;
                     }
-                    $values = $this->getConnection()->fetchAll($select);
+
+                    $con = $this->getSpannerConnection();
+
+                    /**
+                     * Cloud Spanner follows strict type so cast the columns in common type
+                     */
+                    $select = $con->addCast($select, "`t_d`.`value`", 'string');
+                    $select = $con->addCast($select, "`t_s`.`value`", 'string');
+                    $select = $con->addCast($select, "IF(t_s.value_id IS NULL, t_d.value, t_s.value)", 'string');
+                    
+                    $values = $con->fetchAll($select);
+
                 } catch (\Exception $e) {
                     $this->printLogQuery(true, true, $select);
                     throw $e;
