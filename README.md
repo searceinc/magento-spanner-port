@@ -485,7 +485,7 @@ Prepare Data for Update in Cloud Spanner
 ## Delete record in Cloud Spanner
 When a user needs to delete a item from cart or wish list, this delteInSpanner function is initiated, by which the spanner will get connected to Cloud Spanner and delete the data 
 
-``php 
+```php 
    /**
     * Delete from Cloud Spanner
     *
