@@ -7,10 +7,7 @@ will be useful for the PHP developers in integration with Cloud Spanner,
 testing and deployment of the same. There are various PHP frameworks
 available and as part of this proof of concept we will choose
 [Magento](https://github.com/magento/magento2) framework for
-integration with Cloud Spanner.
-
-## Introduction 
-Code snippets are an integral part of any migration activity. It is like a picture of key transactions that happen,like connection establishment for handling data transfer and performing database transactions.This article is a snapshot of the codes for connection and how to perform CRUD operations i.e. Select, Insert, Edit, Update and Delete.  
+integration with Cloud Spanner.  
 
 ## Spanner Adapter
 Magento is one of the most widely used PHP framework and it currently supports multiple database backends like MySQL, MariaDB, PostgreSQL and as part of adding Cloud Spanner support, we have built a Spanner adapter which acts as a layer to ensure smooth transaction of data between any PHP application and the Cloud spanner. Spanner Adapter has methods for maintaining session pool , connections and other functions to support CRUD operations
