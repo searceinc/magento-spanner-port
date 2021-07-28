@@ -76,7 +76,7 @@ class Spanner implements SpannerInterface
         }
         $spanner = new SpannerClient([ 'projectId' => $this->project_id ]);
         $sessionPool = $this->createSessionPool();
-        $this->_connection = $spanner->connect($this->instance, $this->database, ['sessionPool' => $sessionPool]);
+        $this->_connection = $spanner->connect($this->instance, $this->database);
     }
 
     /**
@@ -164,7 +164,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * query
+     * Run query using cloud spanner connection
      *
      * @param string $sql
      * @return mixed|null
@@ -216,10 +216,14 @@ class Spanner implements SpannerInterface
     public function insertArray(array $table, array $data) 
     {
         $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
-            for ($i = 0; $i <= count($table); $i++) {
-                $t->insertBatch($table[$i], $data[$i]);
+            try {
+                for ($i = 0; $i <= count($table); $i++) {
+                    $t->insertBatch($table[$i], $data[$i]);
+                }
+                $t->commit();
+            } catch (\Throwable $th) {
+                $t->rollback();
             }
-            $t->commit();
         });
         
         return $results;
@@ -235,8 +239,12 @@ class Spanner implements SpannerInterface
     public function insert(string $table, array $data) 
     {
         $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
-            $t->insertBatch($table, [ $data ]);
-            $t->commit();
+            try {
+                $t->insertBatch($table, [ $data ]);
+                $t->commit();
+            } catch (\Throwable $th) {
+                $t->rollback();
+            }
         });
         return $results;
     }
@@ -245,14 +253,18 @@ class Spanner implements SpannerInterface
      * Single col update in the table
      *
      * @param string $table
-     * @param array $bind
+     * @param array $data
      * @return Commit timestamp
      */
-    public function update(string $table, array $bind) 
+    public function update(string $table, array $data) 
     {
-        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $bind) {
-            $t->updateBatch($table, [ $bind ]);
-            $t->commit();
+        $results = $this->_connection->runTransaction(function (Transaction $t) use ($table, $data) {
+            try {
+                $t->insertBatch($table, [ $data ]);
+                $t->commit();
+            } catch (\Throwable $th) {
+                $t->rollback();
+            }
         });
         return $results;
     }
@@ -269,10 +281,14 @@ class Spanner implements SpannerInterface
     {
         $sql = "DELETE FROM ".$table." WHERE ".$where;
         $results = $this->_connection->runTransaction(function (Transaction $t) use ($sql, $params) {
-            $t->executeUpdate($sql, [
-                'parameters' => $params
-            ]);
-            $t->commit();
+            try {
+                $t->executeUpdate($sql, [
+                    'parameters' => $params
+                ]);
+                $t->commit();
+            } catch (\Throwable $th) {
+                $t->rollback();
+            }
         });
         return $results;
     }
@@ -282,7 +298,7 @@ class Spanner implements SpannerInterface
      *
      * @return string
      */
-    public function formatDate()
+    public function currentTimestamp()
     {
         $date = (new \DateTime())->format(DateTime::DATETIME_PHP_FORMAT);
         return str_replace('+00:00', '.000Z', gmdate('c', strtotime($date)));
@@ -293,7 +309,7 @@ class Spanner implements SpannerInterface
      *
      * @return string
      */
-    public function getAutoIncrement() 
+    public function generateUuid() 
     {
         if (function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
@@ -381,6 +397,8 @@ class Spanner implements SpannerInterface
                 }
             }
         }
+
+        $sql = str_replace('RAND()',"FARM_FINGERPRINT(REVERSE(FORMAT_TIMESTAMP('%c %E*S', CURRENT_TIMESTAMP())))", $sql);
         return $sql;
     }
 

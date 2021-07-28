@@ -879,21 +879,21 @@ abstract class AbstractDb extends AbstractResource
         $bind = $this->_prepareDataForSave($object);
         $con = $this->getSpannerConnection();
         if ($this->_isPkAutoIncrement) {
-            $bind[$this->getIdFieldName()] = $con->getAutoIncrement();
+            $bind[$this->getIdFieldName()] = $con->generateUuid();
         }
 
         if (isset($bind['added_at'])) {
-            $bind['added_at'] = $con->formatDate();
+            $bind['added_at'] = $con->currentTimestamp();
         }
 
         if ($this->getMainTable() == 'quote_item' || $this->getMainTable() == 'quote_address') {
-            $bind['created_at'] = $con->formatDate();
-            $bind['updated_at'] = $con->formatDate();
+            $bind['created_at'] = $con->currentTimestamp();
+            $bind['updated_at'] = $con->currentTimestamp();
             $bind['free_shipping'] =  1;
         }
 
         if (isset($bind['last_visit_at'])) {
-            $bind['last_visit_at'] = $con->formatDate();
+            $bind['last_visit_at'] = $con->currentTimestamp();
         }
 
         $con->insert($this->getMainTable(), $bind);
@@ -923,15 +923,15 @@ abstract class AbstractDb extends AbstractResource
         }
 
         if (isset($data['added_at'])) {
-            $data['added_at'] =  $con->formatDate();
+            $data['added_at'] =  $con->currentTimestamp();
         }
 
         if (isset($data['created_at'])) {
-            $data['created_at'] =  $con->formatDate();
+            $data['created_at'] =  $con->currentTimestamp();
         }
 
         if (isset($data['updated_at'])) {
-            $data['updated_at'] =  $con->formatDate();
+            $data['updated_at'] =  $con->currentTimestamp();
         }
 
         if (isset($data['customer_dob'])) {
@@ -939,7 +939,7 @@ abstract class AbstractDb extends AbstractResource
         }
 
         if (isset($data['last_visit_at'])) {
-            $data['last_visit_at']  =  $con->formatDate();
+            $data['last_visit_at']  =  $con->currentTimestamp();
         }
 
         if (!empty($data)) {
