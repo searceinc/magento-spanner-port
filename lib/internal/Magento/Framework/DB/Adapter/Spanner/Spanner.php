@@ -250,7 +250,7 @@ class Spanner implements SpannerInterface
     }
 
     /**
-     * Single col update in the table
+     * Updating table data for modifided columns
      *
      * @param string $table
      * @param array $data
