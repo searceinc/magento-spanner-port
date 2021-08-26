@@ -1,7 +1,7 @@
 ## **Overview**
 
 This document describes how to integrate the open source
-[Magento](https://github.com/magento/magento2) ecommerce platform
+[[Magento](https://github.com/magento/magento2) ecommerce platform
 with [Cloud Spanner](https://cloud.google.com/spanner/docs).
 
 [Magento](https://github.com/magento/magento2) is a widely
@@ -130,22 +130,15 @@ The Magento Commerce Cloud project is a
 code and it includes a database and services to fully access the Magento
 site and store.
 
-![](./readmeMedia/media/image18.png){width="6.5in"
-height="3.263888888888889in"}
+![](./readmeMedia/media/image18.png)
 
-![](./readmeMedia/media/image21.png){width="6.5in"
-height="1.0972222222222223in"}
+![](./readmeMedia/media/image21.png)
 
 1.  Clone the source repository and go to the directory for the project.
 
-+-----------------------------------------------------------------------+
-| git clone                                                             |
-| [https://github.com                                                  |
-| /magento/magento2.git](https://github.com/magento/magento2.git) |
-|                                                                       |
-| cd magento2                                                           |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+    > git clone [https://github.com/magento/magento2.git](https://github.com/magento/magento2.git)
+ 
+    > cd magento2  
 
 2.  Checkout a stable version. You can checkout a specific release
     > branch after cloning the latest code.
@@ -167,44 +160,34 @@ installed before we can install Magento
 
 1.  Installing PHP modules required for Magento.
 
-+-----------------------------------------------------------------------+
-| sudo apt install php7.4-fpm php7.4-common php7.4-mysql php7.4-gmp     |
-| php7.4-curl                                                           |
-|                                                                       |
-| sudo apt install php7.4-intl php7.4-mbstring php7.4-xmlrpc php7.4-gd  |
-| php7.4-xml php7.4-cli php7.4-zip php7.4-bcmath php7.4-soap            |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+
+> sudo apt install php7.4-fpm php7.4-common php7.4-mysql php7.4-gmp php7.4-curl   
+
+> sudo apt install php7.4-intl php7.4-mbstring php7.4-xmlrpc php7.4-gd php7.4-xml php7.4-cli php7.4-zip php7.4-bcmath php7.4-soap 
 
 2.  Installing elasticsearch
 
-+-----------------------------------------------------------------------+
-| wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \| sudo |
-| apt-key add -                                                         |
-|                                                                       |
-| sudo apt-get install apt-transport-https\                             |
-| echo \"deb https://artifacts.elastic.co/packages/7.x/apt stable       |
-| main\" \| sudo tee /etc/apt/sources.list.d/elastic-7.x.list           |
-|                                                                       |
-| sudo apt-get update && sudo apt-get install elasticsearch\            |
-| sudo systemctl start elasticsearch.service                            |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+
+> wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -                                                         
+                                                                       
+> sudo apt-get install apt-transport-https
+
+> echo \"deb https://artifacts.elastic.co/packages/7.x/apt stable main\" \| sudo tee /etc/apt/sources.list.d/elastic-7.x.list           
+                                                                      
+>  sudo apt-get update && sudo apt-get install elasticsearch
+
+>  sudo systemctl start elasticsearch.service                            
 
 3.  Set folder permissions
 
-+-----------------------------------------------------------------------+
-| sudo find var generated vendor pub/static pub/media app/etc -type f   |
-| -exec chmod g+w {} +                                                  |
-|                                                                       |
-| sudo find var generated vendor pub/static pub/media app/etc -type d   |
-| -exec chmod g+ws {} +                                                 |
-|                                                                       |
-| sudo chown -R :www-data .                                             |
-|                                                                       |
-| sudo chmod u+x bin/magento                                            |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+
+> sudo find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {}                                                  
+                                                                      
+> sudo find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {}                                                 
+                                                                      
+> sudo chown -R :www-data .                                             
+                                                                      
+> sudo chmod u+x bin/magento                                            
 
 4.  Configure virtual host
 
@@ -212,36 +195,20 @@ Configure the Apache server for Magento by creating
 /etc/apache2/sites-available/magento.conf and configuring the magento
 folder.
 
-+-----------------------------------------------------------------------+
-| \<VirtualHost \*:80>                                                  |
-|                                                                       |
-| ServerAdmin admin\@local-magento.com                                  |
-|                                                                       |
-| DocumentRoot /var/www/html/magento/                                   |
-|                                                                       |
-| ServerName magento-poc.com                                            |
-|                                                                       |
-| ServerAlias www.magento-poc.com                                       |
-|                                                                       |
-| \<Directory /var/www/html/magento/>                                   |
-|                                                                       |
-| Options Indexes FollowSymlinks MultiViews                             |
-|                                                                       |
-| AllowOverride All                                                     |
-|                                                                       |
-| Order allow,deny                                                      |
-|                                                                       |
-| allow from all                                                        |
-|                                                                       |
-| \</Directory>                                                         |
-|                                                                       |
-| ErrorLog \${APACHE_LOG_DIR}/error.log                                 |
-|                                                                       |
-| CustomLog \${APACHE_LOG_DIR}/access.log combined                      |
-|                                                                       |
-| \</VirtualHost>                                                       |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+    <VirtualHost *:80>
+    ServerAdmin admin\@local-magento.com                                                                                                   
+    DocumentRoot /var/www/html/magento/                                                                                             
+    ServerName magento-poc.com                                                                                                                 
+    ServerAlias www.magento-poc.com                                                                                                        
+    <Directory /var/www/html/magento/>                                                                                                     
+      Options Indexes FollowSymlinks MultiViews                                                                                      
+      AllowOverride All                                                                                                                  
+      Order allow,deny                                                                                                                
+      allow from all                                                                                                                     
+    </Directory>                                                                                                                
+    ErrorLog \${APACHE_LOG_DIR}/error.log                                                                                   
+    CustomLog \${APACHE_LOG_DIR}/access.log combined                                                                           
+    </VirtualHost>                                                       
 
 5.  Creating a symlink with the Apache default installation and the
     > repository
@@ -249,23 +216,15 @@ folder.
 following command to create the empty database for the magento to be
 installed in the next step
 
-+-----------------------------------------------------------------------+
-| cd \<your project location>                                           |
-|                                                                       |
-| ln -s . /var/www/html/magento                                         |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+> cd \<your project location>
+> ln -s . /var/www/html/magento
 
 6.  Install packages
 
 Magento 2 requires the composer 1.x version.
 
-+-----------------------------------------------------------------------+
-| apt install composer                                                  |
-|                                                                       |
-| composer install                                                      |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+apt install composer
+composer install
 
 7.  Create Database for magento
 
@@ -440,8 +399,7 @@ installation was successful and functioning as intended.
 
 Existing screen with MySQL
 
-![](./readmeMedia/media/image15.png){width="6.267716535433071in"
-height="2.986111111111111in"}
+![](./readmeMedia/media/image15.png)
 
 Code Modification:
 
@@ -464,14 +422,11 @@ Refer /lib/internal/Magento/Framework/DB/Adapter/Spanner/Spanner.php and
 
 ScreenShot of the Code Snippet:
 
-![](./readmeMedia/media/image20.png){width="5.613194444444445in"
-height="1.176388888888889in"}
+![](./readmeMedia/media/image20.png)
 
-![](./readmeMedia/media/image19.png){width="5.865277777777778in"
-height="2.4451388888888888in"}
+![](./readmeMedia/media/image19.png)
 
-![](./readmeMedia/media/image22.png){width="5.772916666666666in"
-height="2.3361111111111112in"}
+![](./readmeMedia/media/image22.png)
 
 Modify the AbstractDB class within Magento to now connect to Spanner
 using the newly created Connection function within Spanner Adapter.
@@ -479,8 +434,7 @@ Refer /lib/internal/Magento/Framework/Data/Collection/AbstractDB.php
 
 Screenshot of the Code Snippet:
 
-![](./readmeMedia/media/image23.png){width="5.6722222222222225in"
-height="3.1006944444444446in"}
+![](./readmeMedia/media/image23.png)
 
 Once the connection is established we need to modify the data fetch
 method from the MySQL adapter to the Spanner adapter . Modify the
@@ -492,11 +446,9 @@ Refer to
 
 Screenshot of Code Snippet:
 
-![](./readmeMedia/media/image27.png){width="5.495833333333334in"
-height="0.3951388888888889in"}
+![](./readmeMedia/media/image27.png)
 
-![](./readmeMedia/media/image29.png){width="6.26875in"
-height="2.4451388888888888in"}
+![](./readmeMedia/media/image29.png)
 
 #### Visual Verification Scenarios for Catalog :
 
@@ -506,25 +458,21 @@ loaded from Spanner.
 
 Screenshot of the Site loaded from Spanner
 
-![](./readmeMedia/media/image5.png){width="6.26875in"
-height="2.470833333333333in"}
+![](./readmeMedia/media/image5.png)
 
 Spanner Terminal screenshot to verify the Product in Catalog
 
-![](./readmeMedia/media/image11.png){width="6.267716535433071in"
-height="1.1388888888888888in"}
+![](./readmeMedia/media/image11.png)
 
 Modify Spanner data via the terminal for one of the products and query
 the data via terminal to confirm the modification in Spanner.
 
-![](./readmeMedia/media/image4.png){width="6.267716535433071in"
-height="1.3888888888888888in"}
+![](./readmeMedia/media/image4.png)
 
 Reload the screen to confirm that the name of the watch is now changed
 to "Aim Analog Spanner" as updated via the Spanner terminal.
 
-![](./readmeMedia/media/image30.png){width="6.26875in"
-height="4.1930555555555555in"}
+![](./readmeMedia/media/image30.png)
 
 ### Wishlist
 
@@ -539,19 +487,16 @@ green highlighted code. Refer to the [[Github
 link](https://github.com/searceinc/magento-spanner-port/commit/daa8ce2a246c165171a197dc994637bc45be116a)
 for sample
 
-![](./readmeMedia/media/image24.png){width="5.598958880139983in"
-height="3.36919728783902in"}
+![](./readmeMedia/media/image24.png)
 
 Add a new method to load the data that is selected by the user
 
-![](./readmeMedia/media/image26.png){width="4.734375546806649in"
-height="3.3161953193350833in"}
+![](./readmeMedia/media/image26.png)
 
 Load the required data and check if the same is reflected in the
 shopping page.
 
-![](./readmeMedia/media/image28.png){width="5.386805555555555in"
-height="4.899305555555555in"}
+![](./readmeMedia/media/image28.png)
 
 #### Wishlist Add
 
@@ -562,8 +507,7 @@ according to the latest entry.
 
 Refer to the code snippet below
 
-![](./readmeMedia/media/image14.png){width="5.663888888888889in"
-height="6.008333333333334in"}
+![](./readmeMedia/media/image14.png)
 
 #### Wishlist Modify
 
@@ -574,14 +518,12 @@ wishlist cart.
 
 Refer to the code snippet below
 
-![](./readmeMedia/media/image8.png){width="6.267716535433071in"
-height="5.388888888888889in"}
+![](./readmeMedia/media/image8.png)
 
 Modify the existing method and replace the highlighted red section with
 the highlighted green section to add or update wishlist in Spanner.
 
-![](./readmeMedia/media/image17.png){width="6.267716535433071in"
-height="5.458333333333333in"}
+![](./readmeMedia/media/image17.png)
 
 #### Wishlist Delete:
 
@@ -594,8 +536,7 @@ product.
 
 Refer to the code snippet below
 
-![](./readmeMedia/media/image13.png){width="5.260416666666667in"
-height="3.2104166666666667in"}
+![](./readmeMedia/media/image13.png)
 
 #### Using UUID for Autoincrement 
 
@@ -611,8 +552,7 @@ generating UUID is followed.
 
 Refer to code snippet below
 
-![](./readmeMedia/media/image25.png){width="5.020833333333333in"
-height="4.666666666666667in"}
+![](./readmeMedia/media/image25.png)
 
 #### Screenshots of Test cases for Wishlist
 
@@ -620,19 +560,18 @@ Scenario: Trying to update the wishlist when, before and after adding
 the wishlist, and checking to see if the items chosen for the wishlist
 are reflected in the wishlist page.
 
-![](./readmeMedia/media/image9.png){width="6.26875in"
-height="4.5375in"}![](./readmeMedia/media/image12.png){width="6.26875in"
-height="1.5375in"}
+![](./readmeMedia/media/image9.png)
 
+![](./readmeMedia/media/image12.png)
 Screenshots for updating wishlist:
 
-![](./readmeMedia/media/image16.png){width="6.26875in"
-height="4.5375in"}
+![](./readmeMedia/media/image16.png)
+
 
 The Spanner Terminal shows that the quantity is updated as 2
 
-![](./readmeMedia/media/image3.png){width="6.26875in"
-height="0.7895833333333333in"}
+![](./readmeMedia/media/image3.png)
+
 
 After clicking on removing the items from the wishlist, the items get
 removed from the wishlist screen and on refreshing the wishlist screen
@@ -640,8 +579,8 @@ it displays no items.
 
 Execute the query in Spanner Terminal to verify the deleted items.
 
-![](./readmeMedia/media/image1.png){width="6.267716535433071in"
-height="1.1111111111111112in"}
+![](./readmeMedia/media/image1.png)
+
 
 ### Cart 
 
@@ -658,8 +597,7 @@ has to be formatted in ISO format while adding the items to the cart.
 
 Refer to the code snippet below
 
-![](./readmeMedia/media/image7.png){width="5.755208880139983in"
-height="5.745648512685914in"}
+![](./readmeMedia/media/image7.png)
 
 #### Cart Modify
 
@@ -668,8 +606,8 @@ format. The same should reflect on the UI.
 
 Refer to the code snippet below to find the reference in the repository
 
-![](./readmeMedia/media/image6.png){width="6.26875in"
-height="5.252083333333333in"}
+![](./readmeMedia/media/image6.png)
+
 
 #### Cart Delete 
 
@@ -677,16 +615,16 @@ When the Delete option is selected the data of the item in the Cart
 table is removed and the cart is refreshed with a final set of items for
 checkout.
 
-![](./readmeMedia/media/image13.png){width="5.260416666666667in"
-height="3.2104166666666667in"}
+![](./readmeMedia/media/image13.png)
+
 
 #### Sample screenshots to verify Add Cart Screen
 
-![](./readmeMedia/media/image2.png){width="5.772916666666666in"
-height="4.436805555555556in"}
+![](./readmeMedia/media/image2.png)
 
-![](./readmeMedia/media/image10.png){width="6.26875in"
-height="1.2354166666666666in"}
+
+![](./readmeMedia/media/image10.png)
+
 
 ## 
 
