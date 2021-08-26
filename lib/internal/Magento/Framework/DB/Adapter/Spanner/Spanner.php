@@ -397,8 +397,6 @@ class Spanner implements SpannerInterface
                 }
             }
         }
-
-        $sql = str_replace('RAND()',"FARM_FINGERPRINT(REVERSE(FORMAT_TIMESTAMP('%c %E*S', CURRENT_TIMESTAMP())))", $sql);
         return $sql;
     }
 
