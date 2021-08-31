@@ -76,7 +76,7 @@ class Spanner implements SpannerInterface
         }
         $spanner = new SpannerClient([ 'projectId' => $this->project_id ]);
         $sessionPool = $this->createSessionPool();
-        $this->_connection = $spanner->connect($this->instance, $this->database);
+        $this->_connection = $spanner->connect($this->instance, $this->database, ['sessionPool' => $sessionPool]);
     }
 
     /**
