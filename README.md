@@ -1,10 +1,3 @@
-## Purpose of this Document:
-
-The purpose of this document is to provide a deployment guide and to
-provide prerequisites for migration of Magento with Cloud Spanner using
-HarbourBridge . This document should be useful for the developers in
-migration, testing and deployment of the same.
-
 ## Setup and Prerequisites:
 
 The Magento Commerce Cloud project is a [Git
