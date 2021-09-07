@@ -233,7 +233,7 @@ class Spanner implements SpannerInterface
      * Insert multiple rows in single table
      *
      * @param string $table
-     * @param array $data
+     * @param array $data  - Example : ['wishlist_item_id' => "6136f3048f1e1d16565478b1", 'wishlist_id' => 23, 'product_id' =>  16, 'store_id'=> 1, 'qty' => 1 ]
      * @return Commit timestamp
      */
     public function insert(string $table, array $data) 
