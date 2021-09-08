@@ -47,14 +47,14 @@ interface SpannerInterface
      *
      * @return string
      */
-    public function formatDate();
+    public function currentTimestamp();
 
     /**
      * Returns auto increment field if exists
      *
      * @return string
      */
-    public function getAutoIncrement();
+    public function generateUuid();
 
     /**
      * Insert multiple rows in multiple tables
@@ -75,13 +75,13 @@ interface SpannerInterface
     public function insert(string $table, array $data);
 
     /**
-     * Single col update in the table
+     * Single row update in the table
      *
      * @param string $table
-     * @param array $bind
+     * @param array $data
      * @return Commit timestamp
      */
-    public function update(string $table, array $bind);
+    public function update(string $table, array $data);
 
     /**
      * Deletes table rows based on a WHERE clause.
