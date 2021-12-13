@@ -226,7 +226,7 @@
                 comment="Product ID"/>
         <column xsi:type="smallint" name="store_id" unsigned="true" nullable="true" identity="false"
                 comment="Store ID"/>
-        <column xsi:type="int" name="parent_item_id" unsigned="true" nullable="true" identity="false"
+        <column xsi:type="varchar" name="parent_item_id" unsigned="true" nullable="true" identity="false"
                 comment="Parent Item ID"/>
         <column xsi:type="smallint" name="is_virtual" unsigned="true" nullable="true" identity="false"
                 comment="Is Virtual"/>
@@ -320,7 +320,7 @@
                 comment="Parent Item ID"/>
         <column xsi:type="int" name="quote_address_id" unsigned="true" nullable="false" identity="false"
                 default="0" comment="Quote Address ID"/>
-        <column xsi:type="int" name="quote_item_id" unsigned="true" nullable="false" identity="false"
+        <column xsi:type="varchar" name="quote_item_id" unsigned="true" nullable="false" identity="false"
                 default="0" comment="Quote Item ID"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
                 comment="Created At"/>
